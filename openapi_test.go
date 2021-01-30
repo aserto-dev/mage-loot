@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"syscall"
 	"testing"
 
 	. "github.com/onsi/gomega"
@@ -137,6 +138,13 @@ func TestBadOpenAPI(t *testing.T) {
 	packageName := genPackageName
 	generatorType := genTypeGoGinServer
 
+	// Don't print to stderr for this test, to avoid confusion
+	// (we expect things to fail)
+	currentErrOutput := os.Stderr
+	os.Stderr = os.NewFile(uintptr(syscall.Stdin), os.DevNull)
+	defer func() {
+		os.Stderr = currentErrOutput
+	}()
 	err = mageloot.GenerateOpenAPI(definitionPath, packageName, outputDir, generatorType)
 
 	g.Expect(err).To(HaveOccurred())

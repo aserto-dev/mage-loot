@@ -71,15 +71,13 @@ func GenerateOpenAPI(openAPIDefinitionPath, packageName, outputDir, generatorTyp
 		return errors.Wrap(err, "failed to determine current user")
 	}
 
-	additionalArgs = append(additionalArgs, "2>&1")
-	command := strings.Join(append([]string{"docker", "run", "--rm",
+	err = sh.Run("docker", append([]string{"run", "--rm",
 		"-u", fmt.Sprintf("%s:%s", currentUser.Uid, currentUser.Gid),
 		"-v", fmt.Sprintf("%s:/local", currentDir),
 		openAPIDockerImage,
 		"generate", "-i", openapiContainerPath, "-g", generatorType, "-o", outputContainerPath},
-		additionalArgs...), " ")
+		additionalArgs...)...)
 
-	err = sh.Run("sh", "-c", command)
 	if err != nil {
 		return errors.Wrap(err, "failed to run docker container to generate an OpenAPI go server")
 	}
