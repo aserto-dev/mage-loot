@@ -50,6 +50,20 @@ func TestDefinitionDoesNotExist(t *testing.T) {
 	g.Expect(err.Error()).To(MatchRegexp("path '/tmp/mageloot-test.+?' is outside the current directory"))
 }
 
+func TestDefinitionIsADir(t *testing.T) {
+	g := NewGomegaWithT(t)
+
+	definitionPath := magetesting.AssetOpenAPIOutputDir()
+	outputDir := os.TempDir()
+	packageName := genPackageName
+	generatorType := genTypeGoGinServer
+
+	err := mageloot.GenerateOpenAPI(definitionPath, packageName, outputDir, generatorType)
+
+	g.Expect(err).To(HaveOccurred())
+	g.Expect(err.Error()).To(MatchRegexp("failed to determine if file '.+?' exists: not a file"))
+}
+
 func TestOutputOutsideCurrentDir(t *testing.T) {
 	g := NewGomegaWithT(t)
 
@@ -76,6 +90,20 @@ func TestOutputDoesNotExist(t *testing.T) {
 
 	g.Expect(err).To(HaveOccurred())
 	g.Expect(err.Error()).To(Equal("dir '/tmp/thispathshouldnotexist' doesn't exist"))
+}
+
+func TestOutputIsAFile(t *testing.T) {
+	g := NewGomegaWithT(t)
+
+	definitionPath := magetesting.AssetWorkingOpenAPIYaml()
+	outputDir := magetesting.AssetWorkingOpenAPIYaml()
+	packageName := genPackageName
+	generatorType := genTypeGoGinServer
+
+	err := mageloot.GenerateOpenAPI(definitionPath, packageName, outputDir, generatorType)
+
+	g.Expect(err).To(HaveOccurred())
+	g.Expect(err.Error()).To(MatchRegexp("failed to determine if dir '.+?' exists: not a dir"))
 }
 
 func TestWorkingOpenAPI(t *testing.T) {

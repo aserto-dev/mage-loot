@@ -12,7 +12,6 @@ on:
       - main
 env:
   VAULT_ADDR: https://vault.eng.aserto.com/
-  PRE_RELEASE: ${{ github.ref == 'refs/heads/main' && 'development' || '' }}
   GO_VERSION: "1.15.6"
 
 jobs:
