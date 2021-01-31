@@ -16,6 +16,7 @@ import (
 const (
 	genTypeGoGinServer = "go-gin-server"
 	genPackageName     = "deadbeef"
+	openapiTestVersion = "v4.3.1"
 )
 
 func TestDefinitionOutsideCurrentDir(t *testing.T) {
@@ -26,7 +27,7 @@ func TestDefinitionOutsideCurrentDir(t *testing.T) {
 	packageName := genPackageName
 	generatorType := genTypeGoGinServer
 
-	err := mageloot.GenerateOpenAPI(definitionPath, packageName, outputDir, generatorType)
+	err := mageloot.GenerateOpenAPI(openapiTestVersion, definitionPath, packageName, outputDir, generatorType)
 
 	g.Expect(err).To(HaveOccurred())
 	g.Expect(err.Error()).To(Equal("file '/tmp/foo.yaml' doesn't exist"))
@@ -45,7 +46,7 @@ func TestDefinitionDoesNotExist(t *testing.T) {
 	packageName := genPackageName
 	generatorType := genTypeGoGinServer
 
-	err = mageloot.GenerateOpenAPI(definitionFile.Name(), packageName, outputDir, generatorType)
+	err = mageloot.GenerateOpenAPI(openapiTestVersion, definitionFile.Name(), packageName, outputDir, generatorType)
 
 	g.Expect(err).To(HaveOccurred())
 	g.Expect(err.Error()).To(MatchRegexp("path '/tmp/mageloot-test.+?' is outside the current directory"))
@@ -59,7 +60,7 @@ func TestDefinitionIsADir(t *testing.T) {
 	packageName := genPackageName
 	generatorType := genTypeGoGinServer
 
-	err := mageloot.GenerateOpenAPI(definitionPath, packageName, outputDir, generatorType)
+	err := mageloot.GenerateOpenAPI(openapiTestVersion, definitionPath, packageName, outputDir, generatorType)
 
 	g.Expect(err).To(HaveOccurred())
 	g.Expect(err.Error()).To(MatchRegexp("failed to determine if file '.+?' exists: not a file"))
@@ -73,7 +74,7 @@ func TestOutputOutsideCurrentDir(t *testing.T) {
 	packageName := genPackageName
 	generatorType := genTypeGoGinServer
 
-	err := mageloot.GenerateOpenAPI(definitionPath, packageName, outputDir, generatorType)
+	err := mageloot.GenerateOpenAPI(openapiTestVersion, definitionPath, packageName, outputDir, generatorType)
 
 	g.Expect(err).To(HaveOccurred())
 	g.Expect(err.Error()).To(Equal("path '/tmp' is outside the current directory"))
@@ -87,7 +88,7 @@ func TestOutputDoesNotExist(t *testing.T) {
 	packageName := genPackageName
 	generatorType := genTypeGoGinServer
 
-	err := mageloot.GenerateOpenAPI(definitionPath, packageName, outputDir, generatorType)
+	err := mageloot.GenerateOpenAPI(openapiTestVersion, definitionPath, packageName, outputDir, generatorType)
 
 	g.Expect(err).To(HaveOccurred())
 	g.Expect(err.Error()).To(Equal("dir '/tmp/thispathshouldnotexist' doesn't exist"))
@@ -101,7 +102,7 @@ func TestOutputIsAFile(t *testing.T) {
 	packageName := genPackageName
 	generatorType := genTypeGoGinServer
 
-	err := mageloot.GenerateOpenAPI(definitionPath, packageName, outputDir, generatorType)
+	err := mageloot.GenerateOpenAPI(openapiTestVersion, definitionPath, packageName, outputDir, generatorType)
 
 	g.Expect(err).To(HaveOccurred())
 	g.Expect(err.Error()).To(MatchRegexp("failed to determine if dir '.+?' exists: not a dir"))
@@ -120,7 +121,7 @@ func TestWorkingOpenAPI(t *testing.T) {
 	packageName := genPackageName
 	generatorType := genTypeGoGinServer
 
-	err = mageloot.GenerateOpenAPI(definitionPath, packageName, outputDir, generatorType)
+	err = mageloot.GenerateOpenAPI(openapiTestVersion, definitionPath, packageName, outputDir, generatorType)
 
 	g.Expect(err).ToNot(HaveOccurred())
 }
@@ -145,7 +146,7 @@ func TestBadOpenAPI(t *testing.T) {
 	defer func() {
 		os.Stderr = currentErrOutput
 	}()
-	err = mageloot.GenerateOpenAPI(definitionPath, packageName, outputDir, generatorType)
+	err = mageloot.GenerateOpenAPI(openapiTestVersion, definitionPath, packageName, outputDir, generatorType)
 
 	g.Expect(err).To(HaveOccurred())
 	g.Expect(err.Error()).To(ContainSubstring("failed to run docker container to generate an OpenAPI go server"))

@@ -12,12 +12,12 @@ import (
 )
 
 const (
-	openAPIDockerImage = "openapitools/openapi-generator-cli:v5.0.0"
+	openAPIDockerImage = "openapitools/openapi-generator-cli"
 )
 
 // GenerateOpenAPI generates code for the specified Open API definition
 // the openAPI definition path must be relative to the current working directory
-func GenerateOpenAPI(openAPIDefinitionPath, packageName, outputDir, generatorType string, additionalArgs ...string) error {
+func GenerateOpenAPI(version, openAPIDefinitionPath, packageName, outputDir, generatorType string, additionalArgs ...string) error {
 
 	currentDir, err := os.Getwd()
 	if err != nil {
@@ -74,7 +74,7 @@ func GenerateOpenAPI(openAPIDefinitionPath, packageName, outputDir, generatorTyp
 	err = sh.Run("docker", append([]string{"run", "--rm",
 		"-u", fmt.Sprintf("%s:%s", currentUser.Uid, currentUser.Gid),
 		"-v", fmt.Sprintf("%s:/local", currentDir),
-		openAPIDockerImage,
+		fmt.Sprintf("%s:%s", openAPIDockerImage, version),
 		"generate", "-i", openapiContainerPath, "-g", generatorType, "-o", outputContainerPath},
 		additionalArgs...)...)
 
