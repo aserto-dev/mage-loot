@@ -16,7 +16,7 @@ env:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: alpine:3.13
     steps:
       - name: Read Configuration
         uses: hashicorp/vault-action@v2.1.0
