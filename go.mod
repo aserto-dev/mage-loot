@@ -3,6 +3,7 @@ module github.com/aserto-dev/mage-loot
 go 1.15
 
 require (
+	github.com/aserto-dev/clui v0.0.1
 	github.com/fatih/color v1.10.0
 	github.com/golangci/golangci-lint v1.17.2-0.20190909185456-6163a8a79084
 	github.com/magefile/mage v1.11.0

@@ -1,4 +1,4 @@
-package mageloot
+package fsutil
 
 import (
 	"os"

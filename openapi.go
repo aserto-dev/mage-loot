@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/aserto-dev/mage-loot/fsutil"
 	"github.com/magefile/mage/sh"
 	"github.com/pkg/errors"
 )
@@ -18,7 +19,6 @@ const (
 // GenerateOpenAPI generates code for the specified Open API definition
 // the openAPI definition path must be relative to the current working directory
 func GenerateOpenAPI(version, openAPIDefinitionPath, packageName, outputDir, generatorType string, additionalArgs ...string) error {
-
 	currentDir, err := os.Getwd()
 	if err != nil {
 		return errors.Wrap(err, "failed to get working directory")
@@ -29,7 +29,7 @@ func GenerateOpenAPI(version, openAPIDefinitionPath, packageName, outputDir, gen
 	if err != nil {
 		return errors.Wrapf(err, "failed to determine absolute path for openapi definition '%s'", openAPIDefinitionPath)
 	}
-	exists, err := FileExists(openapiAbsPath)
+	exists, err := fsutil.FileExists(openapiAbsPath)
 	if err != nil {
 		return errors.Wrapf(err, "failed to determine if file '%s' exists", openapiAbsPath)
 	}
@@ -50,7 +50,7 @@ func GenerateOpenAPI(version, openAPIDefinitionPath, packageName, outputDir, gen
 	if err != nil {
 		return errors.Wrapf(err, "failed to determine absolute path for output dir '%s'", outputDir)
 	}
-	exists, err = DirExists(outputAbsDir)
+	exists, err = fsutil.DirExists(outputAbsDir)
 	if err != nil {
 		return errors.Wrapf(err, "failed to determine if dir '%s' exists", outputAbsDir)
 	}

@@ -1,12 +1,17 @@
 {
   "cSpell.words": [
+    "Depsfile",
     "Gomega",
     "Wrapf",
     "aserto",
+    "clui",
     "deps",
+    "fpath",
     "franela",
+    "fsutil",
     "golangci",
     "goveralls",
+    "gzipped",
     "hashicorp",
     "innovationnorway",
     "keyscan",
