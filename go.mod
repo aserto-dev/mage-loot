@@ -14,5 +14,5 @@ require (
 	github.com/spf13/cobra v1.1.1 // indirect
 	github.com/stretchr/testify v1.4.0 // indirect
 	gopkg.in/yaml.v2 v2.3.0
-	gotest.tools/gotestsum v1.6.1
+	gotest.tools/gotestsum v1.6.2
 )
