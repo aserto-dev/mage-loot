@@ -1,4 +1,4 @@
-package mageloot_test
+package openapi_test
 
 import (
 	"io/ioutil"

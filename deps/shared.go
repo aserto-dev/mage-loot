@@ -25,13 +25,39 @@ var (
 )
 
 type depOptions struct {
-	zipPath string
-	tgzPath string
+	zipPaths  []string
+	tgzPaths  []string
+	libPrefix string
 }
 
 // Option is a setting that changes the behavior
 // of downloading and configuring a binary or a library
 type Option func(*depOptions)
+
+// WithZipPaths tells us the binary or lib lives inside
+// a zip archive
+func WithZipPaths(paths ...string) Option {
+	return func(o *depOptions) {
+		o.zipPaths = paths
+	}
+}
+
+// WithTGzPaths tells us the binary or lib lives inside
+// a tarred and gzipped archive
+func WithTGzPaths(paths ...string) Option {
+	return func(o *depOptions) {
+		o.tgzPaths = paths
+	}
+}
+
+// WithLibPrefix tells us we should remove the specified
+// prefix from the lib paths.
+// This option can use the {{.Version}} template.
+func WithLibPrefix(prefix string) Option {
+	return func(o *depOptions) {
+		o.libPrefix = prefix
+	}
+}
 
 func init() {
 	var err error
@@ -113,7 +139,7 @@ func tmpFile(name string) string {
 	return filepath.Join(dir, name)
 }
 
-func getTmpDir() string {
+func mkTmpDir() string {
 	err := os.MkdirAll(extTmpDir(), 0700)
 	if err != nil {
 		panic(errors.Wrap(err, "failed to setup .ext/tmp dir"))
@@ -127,17 +153,17 @@ func getTmpDir() string {
 	return dir
 }
 
-func getDownloadURL(url, version string) string {
+func versionTemplate(tpl, version string) string {
 	type Version struct {
 		Version string
 	}
 	v := Version{version}
-	t := template.Must(template.New("url").Parse(url))
+	t := template.Must(template.New("tml").Parse(tpl))
 
 	var buf bytes.Buffer
 	err := t.Execute(&buf, v)
 	if err != nil {
-		panic(errors.Wrap(err, "failed to render url template with version"))
+		panic(errors.Wrap(err, "failed to render template with version"))
 	}
 
 	return buf.String()

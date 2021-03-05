@@ -10,32 +10,49 @@ import (
 
 // DefGoDep defines a go dependency that can be installed using
 // a command like `go install github.com/aserto-dev/foo@v1.2.3`
-func DefGoDep(name, importPath, version string) func(...string) error {
+func DefGoDep(name, importPath, version string) {
 	cmdRegisterMutex.Lock()
 	defer cmdRegisterMutex.Unlock()
 
-	if _, ok := cmdDownloadSync[name]; !ok {
-		cmdDownloadSync[name] = &sync.Once{}
+	if _, ok := config.Go[name]; !ok {
+		config.Go[name] = &depDetails{Once: &sync.Once{}}
 	}
 
-	return func(args ...string) error {
-		cmdDownloadSync[name].Do(func() {
+	config.Go[name].Procure = func() {
+		config.Go[name].Once.Do(func() {
 			installGoBin(importPath, version)
 		})
-
-		return sh.RunV(name, args...)
 	}
 }
 
-// GoDep returns a go dependency loaded from a Depfile
-func GoDep(name string) func(...string) error {
-	goBin := config.Go[name]
+// GoDepOutput returns a command for running a go dependency.
+// Its output is returned.
+func GoDepOutput(name string) func(...string) (string, error) {
+	def := config.Go[name]
 
-	if goBin == nil {
+	if def == nil {
 		panic(errors.Errorf("didn't find a go binary dependency named '%s'", name))
 	}
 
-	return goBin
+	return func(args ...string) (string, error) {
+		def.Procure()
+		return sh.Output(name, args...)
+	}
+}
+
+// GoDep returns a command for running a go dependency.
+// Its output is sent to stdout.
+func GoDep(name string) func(...string) error {
+	def := config.Go[name]
+
+	if def == nil {
+		panic(errors.Errorf("didn't find a go binary dependency named '%s'", name))
+	}
+
+	return func(args ...string) error {
+		def.Procure()
+		return sh.RunV(name, args...)
+	}
 }
 
 func installGoBin(importPath, version string) {
