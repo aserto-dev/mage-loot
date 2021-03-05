@@ -84,7 +84,10 @@ func downloadZippedBin(name, url, version, sha string, zipPaths []string) {
 	versionedURL := versionTemplate(url, version)
 
 	ui.Note().WithStringValue("zip", name).WithStringValue("url", versionedURL).Msg("Downloading ...")
-	downloadFile(filePath, versionedURL)
+	err := downloadFile(filePath, versionedURL)
+	if err != nil {
+		panic(errors.Wrap(err, "failed to download file"))
+	}
 
 	ui.Note().WithStringValue("zip", name).Msg("Checking signature ...")
 	verifyFile(filePath, sha)
@@ -92,7 +95,7 @@ func downloadZippedBin(name, url, version, sha string, zipPaths []string) {
 	unzipDir := mkTmpDir()
 	defer os.RemoveAll(unzipDir)
 
-	_, err := fsutil.Unzip(filePath, unzipDir)
+	_, err = fsutil.Unzip(filePath, unzipDir)
 	if err != nil {
 		panic(errors.Wrapf(err, "failed to unzip '%s'", filePath))
 	}
@@ -118,7 +121,10 @@ func downloadBinary(name, url, version, sha string) {
 	versionedURL := versionTemplate(url, version)
 
 	ui.Note().WithStringValue("bin", name).WithStringValue("url", versionedURL).Msg("Downloading ...")
-	downloadFile(filePath, versionedURL)
+	err := downloadFile(filePath, versionedURL)
+	if err != nil {
+		panic(errors.Wrap(err, "failed to download file"))
+	}
 
 	ui.Note().WithStringValue("bin", name).Msg("Checking signature ...")
 	verifyFile(filePath, sha)

@@ -7,10 +7,16 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/pkg/errors"
+)
+
+const (
+	maxZippedFileSize = 50 * 1024 * 1024
 )
 
 // Unzip unzips an archive to a destination directory
-func Unzip(src string, dest string) ([]string, error) {
+func Unzip(src, dest string) ([]string, error) {
 	var filenames []string
 
 	r, err := zip.OpenReader(src)
@@ -20,7 +26,7 @@ func Unzip(src string, dest string) ([]string, error) {
 	defer r.Close()
 
 	for _, f := range r.File {
-		fpath := filepath.Join(dest, f.Name)
+		fpath := filepath.Join(dest, f.Name) // nolint:gosec // check ZipSlip below
 
 		// Check for ZipSlip. More Info: http://bit.ly/2MsjAWE
 		if !strings.HasPrefix(fpath, filepath.Clean(dest)+string(os.PathSeparator)) {
@@ -30,11 +36,14 @@ func Unzip(src string, dest string) ([]string, error) {
 		filenames = append(filenames, fpath)
 
 		if f.FileInfo().IsDir() {
-			os.MkdirAll(fpath, os.ModePerm)
+			err = os.MkdirAll(fpath, os.ModePerm)
+			if err != nil {
+				return nil, errors.Wrapf(err, "failed to create directory '%s'", fpath)
+			}
 			continue
 		}
 
-		if err = os.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
+		if err := os.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
 			return filenames, err
 		}
 
@@ -48,7 +57,11 @@ func Unzip(src string, dest string) ([]string, error) {
 			return filenames, err
 		}
 
-		_, err = io.Copy(outFile, rc)
+		if f.UncompressedSize64 > maxZippedFileSize {
+			continue
+		}
+
+		_, err = io.Copy(outFile, rc) // nolint:gosec // max file size checked above
 
 		// Close the file without defer to close before next iteration of loop
 		outFile.Close()

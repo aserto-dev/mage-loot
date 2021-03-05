@@ -11,11 +11,21 @@ import (
 	"github.com/pkg/errors"
 )
 
-var (
-	Architectures = []string{"x86_64", "arm"}
-	OSList        = []string{"linux", "windows", "darwin"}
+const (
+	osLinux             = "linux"
+	osWindows           = "windows"
+	osDarwin            = "darwin"
+	windowsBinExtension = ".exe"
 )
 
+var (
+	// Architectures is a list of architectures to build binaries for.
+	Architectures = []string{"amd64", "arm"}
+	// OSList is a list of all OSes to build binaries for.
+	OSList = []string{osLinux, osWindows, osDarwin}
+)
+
+// BuildAll builds all binaries for all OSes and architectures.
 func BuildAll(args ...string) error {
 	version, err := Version()
 	if err != nil {
@@ -48,8 +58,8 @@ func BuildAll(args ...string) error {
 					Msg("Building.")
 
 				out := filepath.Join(cwd, "bin", fmt.Sprintf("%s-%s", o, a), c.Name())
-				if o == "windows" {
-					out = out + ".exe"
+				if o == osWindows {
+					out += windowsBinExtension
 				}
 
 				err := sh.RunWithV(map[string]string{
@@ -98,8 +108,8 @@ func Build(args ...string) error {
 
 	for _, c := range cmds {
 		out := filepath.Join(cwd, "bin", fmt.Sprintf("%s-%s", runtime.GOOS, runtime.GOARCH), c.Name())
-		if runtime.GOOS == "windows" {
-			out = out + ".exe"
+		if runtime.GOOS == osWindows {
+			out += windowsBinExtension
 		}
 
 		err := sh.RunV(

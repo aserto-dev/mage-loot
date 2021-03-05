@@ -76,7 +76,6 @@ linters:
     - dupl
     - errcheck
     - funlen
-    - gochecknoinits
     - goconst
     - gocritic
     - gocyclo
@@ -87,7 +86,6 @@ linters:
     - gosimple
     - govet
     - ineffassign
-    - interfacer
     - lll
     - misspell
     - nakedret
@@ -98,7 +96,6 @@ linters:
     - typecheck
     - unconvert
     - unparam
-    - unused
     - varcheck
 
 issues:

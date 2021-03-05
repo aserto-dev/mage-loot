@@ -40,13 +40,16 @@ func downloadZippedLib(name, url, version, sha, prefix string, patterns []string
 	versionedURL := versionTemplate(url, version)
 
 	ui.Note().WithStringValue("zip", name).WithStringValue("url", versionedURL).Msg("Downloading ...")
-	downloadFile(filePath, versionedURL)
+	err := downloadFile(filePath, versionedURL)
+	if err != nil {
+		panic(errors.Wrap(err, "failed to download file"))
+	}
 
 	ui.Note().WithStringValue("zip", name).Msg("Checking signature ...")
 	verifyFile(filePath, sha)
 
 	libPath := LibDir()
-	err := os.MkdirAll(libPath, 0700)
+	err = os.MkdirAll(libPath, 0700)
 	if err != nil {
 		panic(errors.Wrapf(err, "failed to create directory '%s'", libPath))
 	}
@@ -86,7 +89,10 @@ func downloadZippedLib(name, url, version, sha, prefix string, patterns []string
 				panic(errors.Wrapf(err, "failed to create dir '%s'", dstDir))
 			}
 
-			os.Rename(m, dst)
+			err = os.Rename(m, dst)
+			if err != nil {
+				panic(errors.Wrapf(err, "failed to move '%s' to '%s'", m, dst))
+			}
 		}
 	}
 }

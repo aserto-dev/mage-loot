@@ -30,13 +30,8 @@ func Run(args ...Arg) error {
 
 	finalArgs := []string{}
 
-	for _, arg := range protocArgs.args {
-		finalArgs = append(finalArgs, arg)
-	}
-
-	for _, protoFile := range protocArgs.protoFiles {
-		finalArgs = append(finalArgs, protoFile)
-	}
+	finalArgs = append(finalArgs, protocArgs.args...)
+	finalArgs = append(finalArgs, protocArgs.protoFiles...)
 
 	ui.Note().
 		WithStringValue("Command", "protoc "+strings.Join(finalArgs, " ")).

@@ -68,14 +68,14 @@ func init() {
 }
 
 // downloadFile will download a url to a local file
-func downloadFile(filePath string, url string) error {
+func downloadFile(filePath, url string) error {
 	dir := filepath.Dir(filePath)
 	err := os.MkdirAll(dir, 0700)
 	if err != nil {
 		panic(errors.Wrapf(err, "failed to create dir '%s'", dir))
 	}
 
-	resp, err := http.Get(url)
+	resp, err := http.Get(url) // nolint:gosec // urls come from a config file and are verified against a SHA256 signature
 	if err != nil {
 		panic(errors.Wrap(err, "http get request failed"))
 	}
