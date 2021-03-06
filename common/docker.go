@@ -36,7 +36,7 @@ func DockerImage(repositoryAndTag string, args ...string) error {
 		"docker",
 		append(
 			append([]string{
-				"build", ".",
+				"build",
 				"--ssh", "default", ".",
 				"--build-arg", "COMMIT",
 				"--build-arg", "GO_VERSION",
