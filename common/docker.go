@@ -7,10 +7,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-var (
-	GOVersion = "1.16"
-)
-
 // DockerImage builds the docker image for the project.
 func DockerImage(repositoryAndTag string, args ...string) error {
 	version, err := Version()
@@ -34,18 +30,20 @@ func DockerImage(repositoryAndTag string, args ...string) error {
 	}
 
 	return sh.RunWithV(map[string]string{
-		"COMMIT":     commit,
-		"GO_VERSION": GOVersion,
-		"VERSION":    version,
+		"COMMIT":  commit,
+		"VERSION": version,
 	},
 		"docker",
-		append([]string{
-			"build", ".",
-			"--build-arg", "COMMIT",
-			"--build-arg", "GO_VERSION",
-			"--build-arg", "VERSION",
+		append(
+			append([]string{
+				"build", ".",
+				"--ssh", "default", ".",
+				"--build-arg", "COMMIT",
+				"--build-arg", "GO_VERSION",
+				"--build-arg", "VERSION",
+			},
+				args...),
 			"-t", repositoryAndTag,
-		},
-			args...)...,
+		)...,
 	)
 }
