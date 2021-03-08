@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/magefile/mage/sh"
@@ -49,6 +50,10 @@ func BuildAll(args ...string) error {
 	}
 
 	for _, c := range cmds {
+		if !c.IsDir() || strings.HasPrefix(c.Name(), ".") {
+			continue
+		}
+
 		for _, a := range Architectures {
 			for _, o := range OSList {
 				ui.Normal().
@@ -107,6 +112,10 @@ func Build(args ...string) error {
 	}
 
 	for _, c := range cmds {
+		if !c.IsDir() || strings.HasPrefix(c.Name(), ".") {
+			continue
+		}
+
 		out := filepath.Join(cwd, "bin", fmt.Sprintf("%s-%s", runtime.GOOS, runtime.GOARCH), c.Name())
 		if runtime.GOOS == osWindows {
 			out += windowsBinExtension
