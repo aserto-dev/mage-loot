@@ -63,6 +63,21 @@ func BinDep(name string) func(...string) error {
 	}
 }
 
+// BinDepWithEnv returns a command for running a binary dependency.
+// It accepts an env map for the new process. Its output is sent to stdout.
+func BinDepWithEnv(env map[string]string, name string) func(...string) error {
+	def := config.Bin[name]
+
+	if def == nil {
+		panic(errors.Errorf("didn't find a binary dependency named '%s'", name))
+	}
+
+	return func(args ...string) error {
+		def.Procure()
+		return sh.RunWithV(env, name, args...)
+	}
+}
+
 // BinDepOut returns a command for running a binary dependency.
 // Its output is returned.
 func BinDepOut(name string) func(...string) error {
