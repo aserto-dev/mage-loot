@@ -36,6 +36,7 @@ func DefBinDep(name, url, version, sha string, options ...Option) {
 			return
 		}
 
+		config.Bin[name].Path = binPath
 		config.Bin[name].Once.Do(func() {
 			if len(ops.zipPaths) != 0 {
 				downloadZippedBin(name, url, version, sha, ops.zipPaths)
@@ -59,7 +60,7 @@ func BinDep(name string) func(...string) error {
 
 	return func(args ...string) error {
 		def.Procure()
-		return sh.RunV(name, args...)
+		return sh.RunV(def.Path, args...)
 	}
 }
 
@@ -89,8 +90,19 @@ func BinDepOut(name string) func(...string) error {
 
 	return func(args ...string) error {
 		def.Procure()
-		return sh.RunV(name, args...)
+		return sh.RunV(def.Path, args...)
 	}
+}
+
+func BinPath(name string) string {
+	def := config.Bin[name]
+
+	if def == nil {
+		panic(errors.Errorf("didn't find a binary dependency named '%s'", name))
+	}
+
+	def.Procure()
+	return def.Path
 }
 
 func downloadZippedBin(name, url, version, sha string, zipPaths []string) {

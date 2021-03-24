@@ -20,6 +20,7 @@ type depsConfig struct {
 type depDetails struct {
 	Procure func()
 	Once    *sync.Once
+	Path    string
 }
 
 const (
