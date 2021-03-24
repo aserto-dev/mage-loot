@@ -64,7 +64,7 @@ func lookupConfig(dir string) string {
 		return configFile
 	}
 
-	parent, err := filepath.Abs(filepath.Join(".."))
+	parent, err := filepath.Abs(filepath.Join(dir, ".."))
 
 	if parent == dir {
 		return ""
