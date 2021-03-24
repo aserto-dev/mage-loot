@@ -28,6 +28,8 @@ func DefBinDep(name, url, version, sha string, options ...Option) {
 		}
 
 		binPath := binFilePath(name, version)
+		config.Bin[name].Path = binPath
+
 		exists, err := fsutil.FileExists(binPath)
 		if err != nil {
 			panic(errors.Wrapf(err, "failed to determine if bin '%s' exists", binPath))
@@ -36,7 +38,6 @@ func DefBinDep(name, url, version, sha string, options ...Option) {
 			return
 		}
 
-		config.Bin[name].Path = binPath
 		config.Bin[name].Once.Do(func() {
 			if len(ops.zipPaths) != 0 {
 				downloadZippedBin(name, url, version, sha, ops.zipPaths)
