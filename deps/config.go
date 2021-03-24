@@ -3,6 +3,7 @@ package deps
 import (
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"sync"
 
 	"github.com/aserto-dev/clui"
@@ -22,10 +23,6 @@ type depDetails struct {
 	Once    *sync.Once
 	Path    string
 }
-
-const (
-	configFile = "Depfile"
-)
 
 var (
 	config = depsConfig{
@@ -61,8 +58,28 @@ func GetAllDeps() {
 	}
 }
 
+func lookupConfig(dir string) string {
+	configFile := filepath.Join(dir, "Depfile")
+	if exists, _ := fsutil.FileExists(configFile); exists {
+		return configFile
+	}
+
+	parent, err := filepath.Abs(filepath.Join(".."))
+
+	if parent == dir {
+		return ""
+	}
+
+	if err != nil {
+		panic(errors.Wrap(err, "failed to get parent path"))
+	}
+
+	return lookupConfig(parent)
+}
+
 func init() {
-	if exists, _ := fsutil.FileExists(configFile); !exists {
+	configFile := lookupConfig(".")
+	if configFile == "" {
 		return
 	}
 
