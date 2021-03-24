@@ -83,6 +83,8 @@ func init() {
 		return
 	}
 
+	currentDir = filepath.Dir(configFile)
+
 	configs := &struct {
 		Go map[string]struct {
 			ImportPath string `yaml:"importPath"`

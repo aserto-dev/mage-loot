@@ -59,14 +59,6 @@ func WithLibPrefix(prefix string) Option {
 	}
 }
 
-func init() {
-	var err error
-	currentDir, err = os.Getwd()
-	if err != nil {
-		panic(errors.Wrap(err, "failed to get working directory"))
-	}
-}
-
 // downloadFile will download a url to a local file
 func downloadFile(filePath, url string) error {
 	dir := filepath.Dir(filePath)
