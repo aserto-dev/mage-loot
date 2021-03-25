@@ -113,17 +113,17 @@ func LibDir() string {
 	return filepath.Join(currentDir, externalDir, libDir)
 }
 
-func extTmpDir() string {
+func ExtTmpDir() string {
 	return filepath.Join(currentDir, externalDir, tmpDir)
 }
 
 func tmpFile(name string) string {
-	err := os.MkdirAll(extTmpDir(), 0700)
+	err := os.MkdirAll(ExtTmpDir(), 0700)
 	if err != nil {
 		panic(errors.Wrap(err, "failed to setup .ext/tmp dir"))
 	}
 
-	dir, err := os.MkdirTemp(extTmpDir(), "mageloot*")
+	dir, err := os.MkdirTemp(ExtTmpDir(), "mageloot*")
 	if err != nil {
 		panic(errors.Wrap(err, "failed to setup temp file"))
 	}
@@ -132,12 +132,12 @@ func tmpFile(name string) string {
 }
 
 func mkTmpDir() string {
-	err := os.MkdirAll(extTmpDir(), 0700)
+	err := os.MkdirAll(ExtTmpDir(), 0700)
 	if err != nil {
 		panic(errors.Wrap(err, "failed to setup .ext/tmp dir"))
 	}
 
-	dir, err := os.MkdirTemp(extTmpDir(), "mageloot*")
+	dir, err := os.MkdirTemp(ExtTmpDir(), "mageloot*")
 	if err != nil {
 		panic(errors.Wrap(err, "failed to setup temp dir"))
 	}
