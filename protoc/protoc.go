@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/aserto-dev/clui"
+	"github.com/aserto-dev/mage-loot/deps"
 	"github.com/magefile/mage/sh"
 )
 
@@ -37,7 +38,7 @@ func Run(args ...Arg) error {
 		WithStringValue("Command", "protoc "+strings.Join(finalArgs, " ")).
 		Msg("Running the following protoc command.")
 
-	return sh.RunV("protoc", finalArgs...)
+	return sh.RunV(deps.BinPath("protoc"), finalArgs...)
 }
 
 // Add adds a new "name=value" style argument.
