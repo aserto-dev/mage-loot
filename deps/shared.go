@@ -150,10 +150,12 @@ func versionTemplate(tpl, version string) string {
 	type Version struct {
 		Version string
 		Arch    string
+		OS      string
 	}
 	v := Version{
 		Version: version,
 		Arch:    runtime.GOARCH,
+		OS:      runtime.GOOS,
 	}
 	t := template.Must(template.New("tml").Parse(tpl))
 

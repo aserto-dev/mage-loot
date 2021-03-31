@@ -29,9 +29,10 @@ go:
     version: "v1.4.1"
 bin:
   protoc:
-    url: "https://github.com/protocolbuffers/protobuf/releases/download/v{{.Version}}/protoc-{{.Version}}-{{ .Arch }}-x86_64.zip"
+    url: "https://github.com/protocolbuffers/protobuf/releases/download/v{{.Version}}/protoc-{{.Version}-{{ .OS }}-x86_64.zip"
     version: "3.15.4"
-    sha: "14cca6414353c965ecf3c6bfc5aefb5b54cbd2f572b61aa67bf1ca435b086db9"
+    sha:
+      linux-amd64: "14cca6414353c965ecf3c6bfc5aefb5b54cbd2f572b61aa67bf1ca435b086db9"
     zipPaths:
     - "bin/protoc"
 lib:

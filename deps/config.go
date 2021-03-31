@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"runtime"
 	"sync"
 
 	"github.com/aserto-dev/clui"
@@ -91,11 +92,11 @@ func init() {
 			Version    string `yaml:"version"`
 		} `yaml:"go"`
 		Bin map[string]struct {
-			Version  string   `yaml:"version"`
-			URL      string   `yaml:"url"`
-			SHA      string   `yaml:"sha"`
-			ZipPaths []string `yaml:"zipPaths"`
-			TGzPaths []string `yaml:"tgzPaths"`
+			Version  string            `yaml:"version"`
+			URL      string            `yaml:"url"`
+			SHA      map[string]string `yaml:"sha"`
+			ZipPaths []string          `yaml:"zipPaths"`
+			TGzPaths []string          `yaml:"tgzPaths"`
 		} `yaml:"bin"`
 		Lib map[string]struct {
 			Version   string   `yaml:"version"`
@@ -125,7 +126,11 @@ func init() {
 			options = append(options, WithTGzPaths(bin.TGzPaths...))
 		}
 
-		DefBinDep(name, bin.URL, bin.Version, bin.SHA, options...)
+		sha, ok := bin.SHA[runtime.GOOS+"-"+runtime.GOARCH]
+		if !ok {
+			panic(errors.Errorf("no SHA found for os and arch '%s'", runtime.GOOS+"-"+runtime.GOARCH))
+		}
+		DefBinDep(name, bin.URL, bin.Version, sha, options...)
 	}
 
 	for name, lib := range configs.Lib {
