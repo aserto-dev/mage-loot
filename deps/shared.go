@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/pkg/errors"
 )
@@ -148,8 +149,12 @@ func mkTmpDir() string {
 func versionTemplate(tpl, version string) string {
 	type Version struct {
 		Version string
+		Arch    string
 	}
-	v := Version{version}
+	v := Version{
+		Version: version,
+		Arch:    runtime.GOARCH,
+	}
 	t := template.Must(template.New("tml").Parse(tpl))
 
 	var buf bytes.Buffer
