@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	maxZippedFileSize = 50 * 1024 * 1024
+	maxZippedFileSize = 5 * 1024 * 1024 * 1024
 )
 
 // Unzip unzips an archive to a destination directory
@@ -58,7 +58,7 @@ func Unzip(src, dest string) ([]string, error) {
 		}
 
 		if f.UncompressedSize64 > maxZippedFileSize {
-			continue
+			return nil, errors.Errorf("can't handle files larger than %d", maxZippedFileSize)
 		}
 
 		_, err = io.Copy(outFile, rc) // nolint:gosec // max file size checked above
