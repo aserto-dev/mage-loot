@@ -44,6 +44,11 @@ func DefBinDep(name, url, version, sha string, options ...Option) {
 				return
 			}
 
+			if len(ops.tgzPaths) != 0 {
+				downloadTgzBin(name, url, version, sha, ops.tgzPaths)
+				return
+			}
+
 			// Default to a simple binary
 			downloadBinary(name, url, version, sha)
 		})
@@ -106,7 +111,52 @@ func BinPath(name string) string {
 	return def.Path
 }
 
-func downloadZippedBin(name, url, version, sha string, zipPaths []string) {
+func downloadTgzBin(name, url, version, sha string, patterns []string) {
+	filePath := tmpFile(name + ".tgz")
+	defer os.RemoveAll(filepath.Dir(filePath))
+	versionedURL := versionTemplate(url, version)
+
+	ui.Note().WithStringValue("tgz", name).WithStringValue("url", versionedURL).Msg("Downloading ...")
+	err := downloadFile(filePath, versionedURL)
+	if err != nil {
+		panic(errors.Wrap(err, "failed to download file"))
+	}
+
+	ui.Note().WithStringValue("tgz", name).Msg("Checking signature ...")
+	verifyFile(filePath, sha)
+
+	unpackDir := mkTmpDir()
+	defer os.RemoveAll(unpackDir)
+
+	err = fsutil.ExtractTarGz(filePath, unpackDir)
+	if err != nil {
+		panic(errors.Wrapf(err, "failed to unpack '%s'", filePath))
+	}
+
+	for _, pattern := range patterns {
+		matches, err := filepath.Glob(filepath.Join(unpackDir, pattern))
+		if err != nil {
+			panic(errors.Wrapf(err, "failed to glob using pattern '%s'", pattern))
+		}
+
+		for _, m := range matches {
+			binPath := binFilePath(name, version)
+			binDir := filepath.Dir(binPath)
+			err = os.MkdirAll(binDir, 0700)
+			if err != nil {
+				panic(errors.Wrapf(err, "failed to create directory '%s'", binDir))
+			}
+			err = os.Rename(m, binPath)
+			if err != nil {
+				panic(errors.Wrapf(err, "failed to move binary '%s' to final location", m))
+			}
+
+			makeExe(binPath)
+		}
+	}
+}
+
+func downloadZippedBin(name, url, version, sha string, patterns []string) {
 	filePath := tmpFile(name + ".zip")
 	defer os.RemoveAll(filepath.Dir(filePath))
 	versionedURL := versionTemplate(url, version)
@@ -128,19 +178,25 @@ func downloadZippedBin(name, url, version, sha string, zipPaths []string) {
 		panic(errors.Wrapf(err, "failed to unzip '%s'", filePath))
 	}
 
-	for _, zipPath := range zipPaths {
-		src := filepath.Join(unzipDir, zipPath)
-		binPath := binFilePath(name, version)
-		binDir := filepath.Dir(binPath)
-		err = os.MkdirAll(binDir, 0700)
+	for _, pattern := range patterns {
+		matches, err := filepath.Glob(filepath.Join(unzipDir, pattern))
 		if err != nil {
-			panic(errors.Wrapf(err, "failed to create directory '%s'", binDir))
+			panic(errors.Wrapf(err, "failed to glob using pattern '%s'", pattern))
 		}
-		err = os.Rename(src, binPath)
-		if err != nil {
-			panic(errors.Wrapf(err, "failed to move binary '%s' to final location", src))
+
+		for _, m := range matches {
+			binPath := binFilePath(name, version)
+			binDir := filepath.Dir(binPath)
+			err = os.MkdirAll(binDir, 0700)
+			if err != nil {
+				panic(errors.Wrapf(err, "failed to create directory '%s'", binDir))
+			}
+			err = os.Rename(m, binPath)
+			if err != nil {
+				panic(errors.Wrapf(err, "failed to move binary '%s' to final location", m))
+			}
+			makeExe(binPath)
 		}
-		makeExe(binPath)
 	}
 }
 
