@@ -1,0 +1,14 @@
+version: 2
+updates:
+- package-ecosystem: gomod
+  directory: "/"
+  schedule:
+    interval: weekly
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: github.com/onsi/gomega
+    versions:
+    - 1.10.5
+  - dependency-name: gotest.tools/gotestsum
+    versions:
+    - 1.6.2
