@@ -51,7 +51,7 @@ func ExtractTarGz(src, dest string) error {
 			outFile.Close()
 		default:
 			return errors.Errorf(
-				"unknown type: %s in %s", header.Typeflag, header.Name)
+				"unknown type: %s in %s", string(header.Typeflag), header.Name)
 		}
 	}
 

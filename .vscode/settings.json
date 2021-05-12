@@ -2,6 +2,7 @@
   "cSpell.words": [
     "Depfile",
     "Depsfile",
+    "GOMODCACHE",
     "Gomega",
     "Msgf",
     "Wrapf",
@@ -13,15 +14,18 @@
     "fpath",
     "franela",
     "fsutil",
+    "gjson",
     "golangci",
     "gosec",
     "goveralls",
     "grpc",
     "gzipped",
     "hashicorp",
+    "imdario",
     "innovationnorway",
     "keyscan",
     "magefiles",
+    "mergo",
     "mkdir",
     "msvs",
     "nolint",
@@ -31,6 +35,7 @@
     "protobuf",
     "protoc",
     "pseudomuto",
-    "shogo"
+    "shogo",
+    "tidwall"
   ]
 }
