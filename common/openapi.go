@@ -5,7 +5,6 @@ import (
 	"os"
 	"path"
 	"sort"
-	"strings"
 
 	"github.com/imdario/mergo"
 	"github.com/magefile/mage/sh"
@@ -33,8 +32,6 @@ func CreateOpenAPI(repo, outfile string, subServices []string) error {
 	sort.Strings(files)
 
 	ui.Exclamation().
-		WithStringValue("files", strings.Join(files, ", ")).
-		WithStringValue("outfile", outfile).
 		Msg("openapi-merge")
 
 	return merge(files, outfile)
