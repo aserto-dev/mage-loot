@@ -7,13 +7,13 @@ import (
 )
 
 // Test runs all tests in the project using gotestsum.
-func Test() error {
+func Test(args ...string) error {
 	ui.Normal().Msg("Running tests.")
 
-	return deps.GoDep("gotestsum")("--format", "short-verbose",
+	return deps.GoDep("gotestsum")(append(args, "--format", "short-verbose",
 		"--", "-count=1", "-v", filepath.Join(cwd, "..."),
 		"-coverprofile=cover.out", "-coverpkg=./...",
-		filepath.Join(cwd, "..."))
+		filepath.Join(cwd, "..."))...)
 }
 
 // Lint runs linting against the project.
