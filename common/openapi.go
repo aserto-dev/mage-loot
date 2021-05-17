@@ -31,7 +31,20 @@ func CreateOpenAPI(repo, outfile string, subServices []string) error {
 
 	sort.Strings(files)
 
-	ui.Exclamation().
+	ui.Normal().
+		Msg("openapi-create")
+
+	return merge(files, outfile)
+}
+
+func MergeOpenAPI(repo, outfile string, subServices []string) error {
+	files := []string{}
+
+	files = append(files, subServices...)
+
+	sort.Strings(files)
+
+	ui.Normal().
 		Msg("openapi-merge")
 
 	return merge(files, outfile)
