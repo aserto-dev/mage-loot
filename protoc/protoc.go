@@ -68,6 +68,12 @@ func ProtoFile(file string) func(*protocArgs) {
 	}
 }
 
+func ProtoFiles(files []string) func(*protocArgs) {
+	return func(o *protocArgs) {
+		o.protoFiles = append(o.protoFiles, files...)
+	}
+}
+
 // Version - Show version info and exit.
 func Version() Arg { return AddArg("--version") }
 
