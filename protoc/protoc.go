@@ -93,7 +93,7 @@ func DeterministicOutput() Arg { return AddArg("--deterministic_output") }
 func DecodeRaw() Arg { return AddArg("--decode_raw") }
 
 // Out - output file
-func Out(file string) Arg { return AddArg("-o " + file) }
+func Out(file string) Arg { return AddArg("-o" + file) }
 
 // IncludeImports - When using --descriptor_set_out, also include
 // all dependencies of the input files in the
