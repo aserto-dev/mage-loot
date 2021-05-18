@@ -34,9 +34,9 @@ func Run(args ...Arg) error {
 	finalArgs = append(finalArgs, protocArgs.args...)
 	finalArgs = append(finalArgs, protocArgs.protoFiles...)
 
-	ui.Note().
-		WithStringValue("Command", "protoc "+strings.Join(finalArgs, " ")).
-		Msg("Running the following protoc command.")
+	ui.Normal().
+		WithStringValue("command", "protoc "+strings.Join(finalArgs, "\n")).
+		Msg(">>> executing protoc")
 
 	return sh.RunV(deps.BinPath("protoc"), finalArgs...)
 }
@@ -93,7 +93,7 @@ func DeterministicOutput() Arg { return AddArg("--deterministic_output") }
 func DecodeRaw() Arg { return AddArg("--decode_raw") }
 
 // Out - output file
-func Out(file string) Arg { return AddArg("-o" + file) }
+func Out(file string) Arg { return AddArg("-o " + file) }
 
 // IncludeImports - When using --descriptor_set_out, also include
 // all dependencies of the input files in the
