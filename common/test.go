@@ -10,10 +10,12 @@ import (
 func Test(args ...string) error {
 	ui.Normal().Msg("Running tests.")
 
-	return deps.GoDep("gotestsum")(append(args, "--format", "short-verbose",
-		"--", "-count=1", "-v", filepath.Join(cwd, "..."),
-		"-coverprofile=cover.out", "-coverpkg=./...",
-		filepath.Join(cwd, "..."))...)
+	return deps.GoDep("gotestsum")(
+		append([]string{"--format", "short-verbose", "--"},
+			append(args,
+				"-count=1", "-v", filepath.Join(cwd, "..."), "-coverprofile=cover.out", "-coverpkg=./...", filepath.Join(cwd, "..."))...,
+		)...,
+	)
 }
 
 // Lint runs linting against the project.
