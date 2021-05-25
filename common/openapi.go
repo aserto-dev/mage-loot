@@ -2,6 +2,7 @@ package common
 
 import (
 	"encoding/json"
+	"io"
 	"os"
 	"path"
 	"path/filepath"
@@ -10,6 +11,7 @@ import (
 	"github.com/aserto-dev/mage-loot/fsutil"
 	"github.com/imdario/mergo"
 	"github.com/magefile/mage/sh"
+	"github.com/pkg/errors"
 	"github.com/tidwall/gjson"
 )
 
@@ -110,4 +112,68 @@ func loadFile(filePath string) (map[string]interface{}, error) {
 	}
 
 	return data, nil
+}
+
+func CopyOpenAPI(repo, service, outfile string) error {
+	jsonStr, err := sh.Output("go", "mod", "edit", "-json")
+	if err != nil {
+		return err
+	}
+
+	version := gjson.Get(jsonStr, "Require.#(Path==\""+repo+"\").Version")
+
+	goModCache, err := sh.Output("go", "env", "GOMODCACHE")
+	if err != nil {
+		return err
+	}
+
+	filepath := path.Join(goModCache, repo+"@"+version.String(), "openapi", service, "openapi.json")
+
+	return copyFile(filepath, outfile, true)
+}
+
+func copyFile(src, dst string, overwrite bool) error {
+	const bufferSize int64 = 1024
+
+	srcFileStat, err := os.Stat(src)
+	if err != nil {
+		return err
+	}
+
+	if !srcFileStat.Mode().IsRegular() {
+		return errors.Errorf("%s is not a regular file", src)
+	}
+
+	reader, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer reader.Close()
+
+	_, err = os.Stat(dst)
+	if err == nil && !overwrite {
+		return errors.Errorf("File %s already exists", dst)
+	}
+
+	writer, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer writer.Close()
+
+	buf := make([]byte, bufferSize)
+	for {
+		n, err := reader.Read(buf)
+		if err != nil && err != io.EOF {
+			return err
+		}
+		if n == 0 {
+			break
+		}
+
+		if _, err := writer.Write(buf[:n]); err != nil {
+			return err
+		}
+	}
+	return err
 }
