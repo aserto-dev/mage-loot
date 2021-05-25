@@ -4,14 +4,18 @@ import (
 	"encoding/json"
 	"os"
 	"path"
+	"path/filepath"
 	"sort"
 
+	"github.com/aserto-dev/mage-loot/fsutil"
 	"github.com/imdario/mergo"
 	"github.com/magefile/mage/sh"
 	"github.com/tidwall/gjson"
 )
 
 func CreateOpenAPI(repo, outfile string, subServices []string) error {
+	fsutil.EnsureDir(filepath.Dir(outfile))
+
 	jsonStr, err := sh.Output("go", "mod", "edit", "-json")
 	if err != nil {
 		return err
@@ -38,6 +42,8 @@ func CreateOpenAPI(repo, outfile string, subServices []string) error {
 }
 
 func MergeOpenAPI(repo, outfile string, subServices []string) error {
+	fsutil.EnsureDir(filepath.Dir(outfile))
+
 	files := []string{}
 
 	files = append(files, subServices...)
