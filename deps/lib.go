@@ -30,6 +30,11 @@ func DefLibDep(name, url, version, sha string, options ...Option) {
 				downloadZippedLib(name, url, version, sha, ops.libPrefix, ops.zipPaths)
 				return
 			}
+
+			if len(ops.tgzPaths) != 0 {
+				downloadTgzLib(name, url, version, sha, ops.libPrefix, ops.tgzPaths)
+				return
+			}
 		})
 	}
 }
@@ -70,6 +75,69 @@ func downloadZippedLib(name, url, version, sha, prefix string, patterns []string
 		for _, m := range matches {
 			ui.Note().WithStringValue("  match", m).Msg("> lib file")
 			relPath, err := filepath.Rel(unzipDir, m)
+			if err != nil {
+				panic(errors.Wrapf(err, "failed to get relative path for '%s'", m))
+			}
+
+			if prefix != "" {
+				prefix = versionTemplate(prefix, version)
+				relPath, err = filepath.Rel(prefix, relPath)
+				if err != nil {
+					panic(errors.Wrapf(err, "failed to calculate relative path using prefix '%s' for path '%s'", prefix, relPath))
+				}
+			}
+
+			dst := filepath.Join(libPath, relPath)
+			dstDir := filepath.Dir(dst)
+			err = os.MkdirAll(dstDir, 0700)
+			if err != nil {
+				panic(errors.Wrapf(err, "failed to create dir '%s'", dstDir))
+			}
+
+			err = os.Rename(m, dst)
+			if err != nil {
+				panic(errors.Wrapf(err, "failed to move '%s' to '%s'", m, dst))
+			}
+		}
+	}
+}
+
+func downloadTgzLib(name, url, version, sha, prefix string, patterns []string) {
+	filePath := tmpFile(name + ".zip")
+	defer os.RemoveAll(filepath.Dir(filePath))
+	versionedURL := versionTemplate(url, version)
+
+	ui.Note().WithStringValue("tgz", name).WithStringValue("url", versionedURL).Msg("Downloading ...")
+	err := downloadFile(filePath, versionedURL)
+	if err != nil {
+		panic(errors.Wrap(err, "failed to download file"))
+	}
+
+	ui.Note().WithStringValue("tgz", name).Msg("Checking signature ...")
+	verifyFile(filePath, sha)
+
+	libPath := LibDir()
+	err = os.MkdirAll(libPath, 0700)
+	if err != nil {
+		panic(errors.Wrapf(err, "failed to create directory '%s'", libPath))
+	}
+
+	unpackDir := mkTmpDir()
+	defer os.RemoveAll(unpackDir)
+	err = fsutil.ExtractTarGz(filePath, unpackDir)
+	if err != nil {
+		panic(errors.Wrapf(err, "failed to unpack '%s'", filePath))
+	}
+
+	for _, pattern := range patterns {
+		matches, err := filepath.Glob(filepath.Join(unpackDir, pattern))
+		if err != nil {
+			panic(errors.Wrapf(err, "failed to glob using pattern '%s'", pattern))
+		}
+
+		for _, m := range matches {
+			ui.Note().WithStringValue("  match", m).Msg("> lib file")
+			relPath, err := filepath.Rel(unpackDir, m)
 			if err != nil {
 				panic(errors.Wrapf(err, "failed to get relative path for '%s'", m))
 			}
