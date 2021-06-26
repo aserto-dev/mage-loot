@@ -35,7 +35,7 @@ func Run(args ...Arg) error {
 	finalArgs = append(finalArgs, protocArgs.protoFiles...)
 
 	ui.Normal().
-		WithStringValue("command", "protoc "+strings.Join(finalArgs, "\n")).
+		WithStringValue("command", "protoc "+strings.Join(protocArgs.args, "\n")).
 		Msg(">>> executing protoc")
 
 	return sh.RunV(deps.BinPath("protoc"), finalArgs...)

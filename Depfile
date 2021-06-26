@@ -8,10 +8,10 @@ go:
     version: "v1.1.2"
   gotestsum:
     importPath: "gotest.tools/gotestsum"
-    version: "v1.6.2"
+    version: "v1.6.4"
   golangci-lint:
     importPath: "github.com/golangci/golangci-lint/cmd/golangci-lint"
-    version: "v1.38.0"
+    version: "v1.41.1"
   protoc-gen-go:
     importPath: "google.golang.org/protobuf/cmd/protoc-gen-go"
     version: "v1.26.0"
@@ -20,27 +20,27 @@ go:
     version: "v1.1.0"
   protoc-gen-grpc-gateway:
     importPath: "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway"
-    version: "v2.3.0"
+    version: "v2.5.0"
   protoc-gen-openapiv2:
     importPath: "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2"
-    version: "v2.3.0"
+    version: "v2.5.0"
   protoc-gen-doc:
     importPath: "github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc"
     version: "v1.4.1"
 bin:
   protoc:
     url: 'https://github.com/protocolbuffers/protobuf/releases/download/v{{.Version}}/protoc-{{.Version}}-{{if eq .OS "darwin"}}osx{{else}}{{.OS}}{{end}}-x86_64.zip'
-    version: "3.15.6"
+    version: "3.17.3"
     sha:
-      linux-amd64: "38a2f024a0ce68897b1868c59b613939bd41f16c0c8d8890843eccdbbf46ab00"
-      darwin-amd64: "ca025c889efbe02f390b251c153c752a05fb04f5ac8c93929f8dba2818a5392a"
+      linux-amd64: "d4246a5136cf9cd1abc851c521a1ad6b8884df4feded8b9cbd5e2a2226d4b357"
+      darwin-amd64: "68901eb7ef5b55d7f2df3241ab0b8d97ee5192d3902c59e7adf461adc058e9f1"
     zipPaths:
     - "bin/protoc"
 lib:
   protoc-gen-openapiv2:
     url: "https://github.com/grpc-ecosystem/grpc-gateway/archive/v{{.Version}}.zip"
-    version: "2.3.0"
-    sha: "73d5f1f7373c4148a9934bff39afeb04c167895cc6b94e47075842b7e62c1f2e"
+    version: "2.5.0"
+    sha: "e8334c270a479f55ad9f264e798680ac536f473d7711593f6eadab3df2d1ddc3"
     libPrefix: "grpc-gateway-{{.Version}}"
     zipPaths:
     - "*/protoc-gen-openapiv2/options/*.proto"
@@ -59,8 +59,8 @@ lib:
     - "*/google/rpc/status.proto"
   protobuf:
     url: "https://github.com/protocolbuffers/protobuf/archive/v{{.Version}}.zip"
-    version: "3.15.6"
-    sha: "985bb1ca491f0815daad825ef1857b684e0844dc68123626a08351686e8d30c9"
+    version: "3.17.3"
+    sha: "528927e398f4e290001886894dac17c5c6a2e5548f3fb68004cfb01af901b53a"
     libPrefix: "protobuf-{{.Version}}/src"
     zipPaths:
     - "*/src/google/protobuf/compiler/plugin.proto"
