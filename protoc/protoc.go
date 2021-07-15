@@ -224,3 +224,6 @@ func GrpcGatewayOpt(opt, value string) Arg { return AddOpt("--grpc-gateway_opt",
 
 // OpenAPIV2Opt - Open Api plugin option
 func OpenAPIV2Opt(opt, value string) Arg { return AddOpt("--openapiv2_opt", opt, value) }
+
+// CsharpOpt - C# Options
+func CsharpOpt(opt, value string) Arg { return AddOpt("--csharp_opt", opt, value) }
