@@ -127,9 +127,9 @@ func CopyOpenAPI(repo, service, outfile string) error {
 		return err
 	}
 
-	filepath := path.Join(goModCache, repo+"@"+version.String(), "openapi", service, "openapi.json")
+	fp := path.Join(goModCache, repo+"@"+version.String(), "openapi", service, "openapi.json")
 
-	return copyFile(filepath, outfile, true)
+	return copyFile(fp, outfile, true)
 }
 
 func copyFile(src, dst string, overwrite bool) error {

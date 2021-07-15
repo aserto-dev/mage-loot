@@ -112,23 +112,31 @@ func BinPath(name string) string {
 }
 
 func downloadTgzBin(name, url, version, sha string, patterns []string) {
-	filePath := tmpFile(name + ".tgz")
+	downloadBin(name, url, version, sha, "tgz", patterns)
+}
+
+func downloadZippedBin(name, url, version, sha string, patterns []string) {
+	downloadBin(name, url, version, sha, "zip", patterns)
+}
+
+func downloadBin(name, url, version, sha, extension string, patterns []string) {
+	filePath := tmpFile(name + "." + extension)
 	defer os.RemoveAll(filepath.Dir(filePath))
 	versionedURL := versionTemplate(url, version)
 
-	ui.Note().WithStringValue("tgz", name).WithStringValue("url", versionedURL).Msg("Downloading ...")
+	ui.Note().WithStringValue(extension, name).WithStringValue("url", versionedURL).Msg("Downloading ...")
 	err := downloadFile(filePath, versionedURL)
 	if err != nil {
 		panic(errors.Wrap(err, "failed to download file"))
 	}
 
-	ui.Note().WithStringValue("tgz", name).Msg("Checking signature ...")
+	ui.Note().WithStringValue(extension, name).Msg("Checking signature ...")
 	verifyFile(filePath, sha)
 
 	unpackDir := mkTmpDir()
 	defer os.RemoveAll(unpackDir)
 
-	err = fsutil.ExtractTarGz(filePath, unpackDir)
+	err = fsutil.Extract(extension, filePath, unpackDir)
 	if err != nil {
 		panic(errors.Wrapf(err, "failed to unpack '%s'", filePath))
 	}
@@ -151,50 +159,6 @@ func downloadTgzBin(name, url, version, sha string, patterns []string) {
 				panic(errors.Wrapf(err, "failed to move binary '%s' to final location", m))
 			}
 
-			makeExe(binPath)
-		}
-	}
-}
-
-func downloadZippedBin(name, url, version, sha string, patterns []string) {
-	filePath := tmpFile(name + ".zip")
-	defer os.RemoveAll(filepath.Dir(filePath))
-	versionedURL := versionTemplate(url, version)
-
-	ui.Note().WithStringValue("zip", name).WithStringValue("url", versionedURL).Msg("Downloading ...")
-	err := downloadFile(filePath, versionedURL)
-	if err != nil {
-		panic(errors.Wrap(err, "failed to download file"))
-	}
-
-	ui.Note().WithStringValue("zip", name).Msg("Checking signature ...")
-	verifyFile(filePath, sha)
-
-	unzipDir := mkTmpDir()
-	defer os.RemoveAll(unzipDir)
-
-	_, err = fsutil.Unzip(filePath, unzipDir)
-	if err != nil {
-		panic(errors.Wrapf(err, "failed to unzip '%s'", filePath))
-	}
-
-	for _, pattern := range patterns {
-		matches, err := filepath.Glob(filepath.Join(unzipDir, pattern))
-		if err != nil {
-			panic(errors.Wrapf(err, "failed to glob using pattern '%s'", pattern))
-		}
-
-		for _, m := range matches {
-			binPath := binFilePath(name, version)
-			binDir := filepath.Dir(binPath)
-			err = os.MkdirAll(binDir, 0700)
-			if err != nil {
-				panic(errors.Wrapf(err, "failed to create directory '%s'", binDir))
-			}
-			err = os.Rename(m, binPath)
-			if err != nil {
-				panic(errors.Wrapf(err, "failed to move binary '%s' to final location", m))
-			}
 			makeExe(binPath)
 		}
 	}
