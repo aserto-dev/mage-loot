@@ -33,11 +33,16 @@ func ExtractTarGz(src, dest string) error {
 			break
 		}
 
+		// Tars have a header for the current directory. Skip it.
+		if header.Name == "./" {
+			continue
+		}
+
 		if err != nil {
 			return errors.Wrap(err, "failed to read for tar stream")
 		}
 
-		fpath := filepath.Join(dest, header.Name) // nolint:gosec // check ZipSlip below
+		fpath := filepath.Join(dest, filepath.Clean(header.Name)) // nolint:gosec // check ZipSlip below
 
 		// Check for ZipSlip. More Info: http://bit.ly/2MsjAWE
 		if !strings.HasPrefix(fpath, filepath.Clean(dest)+string(os.PathSeparator)) {
@@ -68,6 +73,7 @@ func ExtractTarGz(src, dest string) error {
 			}
 
 			outFile.Close()
+
 		default:
 			return errors.Errorf(
 				"unknown type: %s in %s", string(header.Typeflag), header.Name)

@@ -92,11 +92,12 @@ func init() {
 			Version    string `yaml:"version"`
 		} `yaml:"go"`
 		Bin map[string]struct {
-			Version  string            `yaml:"version"`
-			URL      string            `yaml:"url"`
-			SHA      map[string]string `yaml:"sha"`
-			ZipPaths []string          `yaml:"zipPaths"`
-			TGzPaths []string          `yaml:"tgzPaths"`
+			Version    string            `yaml:"version"`
+			URL        string            `yaml:"url"`
+			Entrypoint string            `yaml:"entrypoint"`
+			SHA        map[string]string `yaml:"sha"`
+			ZipPaths   []string          `yaml:"zipPaths"`
+			TGzPaths   []string          `yaml:"tgzPaths"`
 		} `yaml:"bin"`
 		Lib map[string]struct {
 			Version   string   `yaml:"version"`
@@ -130,7 +131,11 @@ func init() {
 		if !ok {
 			panic(errors.Errorf("no SHA found for os and arch '%s'", runtime.GOOS+"-"+runtime.GOARCH))
 		}
-		DefBinDep(name, bin.URL, bin.Version, sha, options...)
+		entrypoint := bin.Entrypoint
+		if bin.Entrypoint == "" {
+			entrypoint = name
+		}
+		DefBinDep(name, bin.URL, bin.Version, sha, entrypoint, options...)
 	}
 
 	for name, lib := range configs.Lib {

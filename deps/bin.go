@@ -12,7 +12,7 @@ import (
 
 // DefBinDep makes sure a dependency is downloaded and makes it available as
 // a runnable command.
-func DefBinDep(name, url, version, sha string, options ...Option) {
+func DefBinDep(name, url, version, sha, entrypoint string, options ...Option) {
 	cmdRegisterMutex.Lock()
 	defer cmdRegisterMutex.Unlock()
 
@@ -28,9 +28,12 @@ func DefBinDep(name, url, version, sha string, options ...Option) {
 		}
 
 		binPath := binFilePath(name, version)
-		config.Bin[name].Path = binPath
 
-		exists, err := fsutil.FileExists(binPath)
+		entrypointPath := filepath.Join(binPath, entrypoint)
+
+		config.Bin[name].Path = entrypointPath
+
+		exists, err := fsutil.DirExists(binPath)
 		if err != nil {
 			panic(errors.Wrapf(err, "failed to determine if bin '%s' exists", binPath))
 		}
@@ -52,6 +55,8 @@ func DefBinDep(name, url, version, sha string, options ...Option) {
 			// Default to a simple binary
 			downloadBinary(name, url, version, sha)
 		})
+
+		makeExe(entrypointPath)
 	}
 }
 
@@ -142,24 +147,24 @@ func downloadBin(name, url, version, sha, extension string, patterns []string) {
 	}
 
 	for _, pattern := range patterns {
+
 		matches, err := filepath.Glob(filepath.Join(unpackDir, pattern))
 		if err != nil {
 			panic(errors.Wrapf(err, "failed to glob using pattern '%s'", pattern))
 		}
 
 		for _, m := range matches {
-			binPath := binFilePath(name, version)
-			binDir := filepath.Dir(binPath)
+			binDir := binFilePath(name, version)
 			err = os.MkdirAll(binDir, 0700)
 			if err != nil {
 				panic(errors.Wrapf(err, "failed to create directory '%s'", binDir))
 			}
+			binPath := filepath.Join(binDir, filepath.Base(m))
+
 			err = os.Rename(m, binPath)
 			if err != nil {
 				panic(errors.Wrapf(err, "failed to move binary '%s' to final location", m))
 			}
-
-			makeExe(binPath)
 		}
 	}
 }
