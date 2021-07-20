@@ -36,7 +36,7 @@ func Run(args ...Arg) error {
 	finalArgs = append(finalArgs, dotnetBuildArgs.project, dotnetBuildArgs.solution)
 
 	ui.Normal().
-		WithStringValue("command", "dotnet"+strings.Join(finalArgs, "\n")).
+		WithStringValue("command", "dotnet "+strings.Join(finalArgs, "\n")).
 		Msg(">>> executing dotnet")
 
 	return sh.RunV(deps.BinPath("dotnet"), finalArgs...)

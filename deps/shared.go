@@ -1,15 +1,12 @@
 package deps
 
 import (
-	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
-	"html/template"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
-	"runtime"
 
 	"github.com/pkg/errors"
 )
@@ -144,26 +141,4 @@ func mkTmpDir() string {
 	}
 
 	return dir
-}
-
-func versionTemplate(tpl, version string) string {
-	type Version struct {
-		Version string
-		Arch    string
-		OS      string
-	}
-	v := Version{
-		Version: version,
-		Arch:    runtime.GOARCH,
-		OS:      runtime.GOOS,
-	}
-	t := template.Must(template.New("tml").Parse(tpl))
-
-	var buf bytes.Buffer
-	err := t.Execute(&buf, v)
-	if err != nil {
-		panic(errors.Wrap(err, "failed to render template with version"))
-	}
-
-	return buf.String()
 }

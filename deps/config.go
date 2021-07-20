@@ -120,37 +120,46 @@ func init() {
 
 	for name, bin := range configs.Bin {
 		options := []Option{}
+
 		if len(bin.ZipPaths) != 0 {
-			options = append(options, WithZipPaths(bin.ZipPaths...))
+			zipPaths := parseArrayTemplate(bin.ZipPaths, bin.Version)
+			options = append(options, WithZipPaths(zipPaths...))
 		}
 		if len(bin.TGzPaths) != 0 {
-			options = append(options, WithTGzPaths(bin.TGzPaths...))
+			tgzPaths := parseArrayTemplate(bin.TGzPaths, bin.Version)
+			options = append(options, WithTGzPaths(tgzPaths...))
 		}
 
 		sha, ok := bin.SHA[runtime.GOOS+"-"+runtime.GOARCH]
 		if !ok {
 			panic(errors.Errorf("no SHA found for os and arch '%s'", runtime.GOOS+"-"+runtime.GOARCH))
 		}
-		entrypoint := bin.Entrypoint
+		entrypoint := parseStringTemplate(bin.Entrypoint, bin.Version)
 		if bin.Entrypoint == "" {
 			entrypoint = name
 		}
-		DefBinDep(name, bin.URL, bin.Version, sha, entrypoint, options...)
+		url := parseStringTemplate(bin.URL, bin.Version)
+		DefBinDep(name, url, bin.Version, sha, entrypoint, options...)
 	}
 
 	for name, lib := range configs.Lib {
 		options := []Option{}
 		if len(lib.ZipPaths) != 0 {
-			options = append(options, WithZipPaths(lib.ZipPaths...))
+			zipPaths := parseArrayTemplate(lib.ZipPaths, lib.Version)
+			options = append(options, WithZipPaths(zipPaths...))
 		}
 		if len(lib.TGzPaths) != 0 {
-			options = append(options, WithTGzPaths(lib.TGzPaths...))
+			tgzPaths := parseArrayTemplate(lib.TGzPaths, lib.Version)
+			options = append(options, WithTGzPaths(tgzPaths...))
 		}
 		if lib.LibPrefix != "" {
-			options = append(options, WithLibPrefix(lib.LibPrefix))
+			libPrefix := parseStringTemplate(lib.LibPrefix, lib.Version)
+			options = append(options, WithLibPrefix(libPrefix))
 		}
 
-		DefLibDep(name, lib.URL, lib.Version, lib.SHA, options...)
+		url := parseStringTemplate(lib.URL, lib.Version)
+
+		DefLibDep(name, url, lib.SHA, options...)
 	}
 
 	for name, goBin := range configs.Go {
