@@ -127,10 +127,9 @@ func downloadZippedBin(name, url, version, sha string, patterns []string) {
 func downloadBin(name, url, version, sha, extension string, patterns []string) {
 	filePath := tmpFile(name + "." + extension)
 	defer os.RemoveAll(filepath.Dir(filePath))
-	versionedURL := versionTemplate(url, version)
 
-	ui.Note().WithStringValue(extension, name).WithStringValue("url", versionedURL).Msg("Downloading ...")
-	err := downloadFile(filePath, versionedURL)
+	ui.Note().WithStringValue(extension, name).WithStringValue("url", url).Msg("Downloading ...")
+	err := downloadFile(filePath, url)
 	if err != nil {
 		panic(errors.Wrap(err, "failed to download file"))
 	}
@@ -147,7 +146,6 @@ func downloadBin(name, url, version, sha, extension string, patterns []string) {
 	}
 
 	for _, pattern := range patterns {
-
 		matches, err := filepath.Glob(filepath.Join(unpackDir, pattern))
 		if err != nil {
 			panic(errors.Wrapf(err, "failed to glob using pattern '%s'", pattern))
@@ -171,10 +169,9 @@ func downloadBin(name, url, version, sha, extension string, patterns []string) {
 
 func downloadBinary(name, url, version, sha string) {
 	filePath := binFilePath(name, version)
-	versionedURL := versionTemplate(url, version)
 
-	ui.Note().WithStringValue("bin", name).WithStringValue("url", versionedURL).Msg("Downloading ...")
-	err := downloadFile(filePath, versionedURL)
+	ui.Note().WithStringValue("bin", name).WithStringValue("url", url).Msg("Downloading ...")
+	err := downloadFile(filePath, url)
 	if err != nil {
 		panic(errors.Wrap(err, "failed to download file"))
 	}

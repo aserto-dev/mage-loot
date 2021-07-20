@@ -10,7 +10,7 @@ import (
 )
 
 // DefLibDep makes sure a lib dependency is downloaded and unpacks it
-func DefLibDep(name, url, version, sha string, options ...Option) {
+func DefLibDep(name, url, sha string, options ...Option) {
 	cmdRegisterMutex.Lock()
 	defer cmdRegisterMutex.Unlock()
 
@@ -27,33 +27,32 @@ func DefLibDep(name, url, version, sha string, options ...Option) {
 			}
 
 			if len(ops.zipPaths) != 0 {
-				downloadZippedLib(name, url, version, sha, ops.libPrefix, ops.zipPaths)
+				downloadZippedLib(name, url, sha, ops.libPrefix, ops.zipPaths)
 				return
 			}
 
 			if len(ops.tgzPaths) != 0 {
-				downloadTgzLib(name, url, version, sha, ops.libPrefix, ops.tgzPaths)
+				downloadTgzLib(name, url, sha, ops.libPrefix, ops.tgzPaths)
 				return
 			}
 		})
 	}
 }
 
-func downloadZippedLib(name, url, version, sha, prefix string, patterns []string) {
-	downloadLib(name, url, version, sha, "zip", prefix, patterns)
+func downloadZippedLib(name, url, sha, prefix string, patterns []string) {
+	downloadLib(name, url, sha, "zip", prefix, patterns)
 }
 
-func downloadTgzLib(name, url, version, sha, prefix string, patterns []string) {
-	downloadLib(name, url, version, sha, "tgz", prefix, patterns)
+func downloadTgzLib(name, url, sha, prefix string, patterns []string) {
+	downloadLib(name, url, sha, "tgz", prefix, patterns)
 }
 
-func downloadLib(name, url, version, sha, extension, prefix string, patterns []string) {
+func downloadLib(name, url, sha, extension, prefix string, patterns []string) {
 	filePath := tmpFile(name + "." + extension)
 	defer os.RemoveAll(filepath.Dir(filePath))
-	versionedURL := versionTemplate(url, version)
 
-	ui.Note().WithStringValue(extension, name).WithStringValue("url", versionedURL).Msg("Downloading ...")
-	err := downloadFile(filePath, versionedURL)
+	ui.Note().WithStringValue(extension, name).WithStringValue("url", url).Msg("Downloading ...")
+	err := downloadFile(filePath, url)
 	if err != nil {
 		panic(errors.Wrap(err, "failed to download file"))
 	}
@@ -90,7 +89,6 @@ func downloadLib(name, url, version, sha, extension, prefix string, patterns []s
 			}
 
 			if prefix != "" {
-				prefix = versionTemplate(prefix, version)
 				relPath, err = filepath.Rel(prefix, relPath)
 				if err != nil {
 					panic(errors.Wrapf(err, "failed to calculate relative path using prefix '%s' for path '%s'", prefix, relPath))
