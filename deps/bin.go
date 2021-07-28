@@ -29,7 +29,13 @@ func DefBinDep(name, url, version, sha, entrypoint string, options ...Option) {
 
 		binPath := binFilePath(name, version)
 
-		entrypointPath := filepath.Join(binPath, entrypoint)
+		// downloading a binary file directly
+		entrypointPath := binPath
+
+		if entrypoint != "" {
+			// downloading an archive
+			entrypointPath = filepath.Join(binPath, entrypoint)
+		}
 
 		config.Bin[name].Path = entrypointPath
 

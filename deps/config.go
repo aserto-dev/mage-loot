@@ -136,7 +136,9 @@ func init() {
 		}
 		entrypoint := parseStringTemplate(bin.Entrypoint, bin.Version)
 		if bin.Entrypoint == "" {
-			entrypoint = name
+			if len(bin.ZipPaths) != 0 || len(bin.TGzPaths) != 0 {
+				entrypoint = name
+			}
 		}
 		url := parseStringTemplate(bin.URL, bin.Version)
 		DefBinDep(name, url, bin.Version, sha, entrypoint, options...)
