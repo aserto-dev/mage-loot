@@ -29,13 +29,8 @@ func DefBinDep(name, url, version, sha, entrypoint string, options ...Option) {
 
 		binPath := binFilePath(name, version)
 
-		// downloading a binary file directly
-		entrypointPath := binPath
-
-		if entrypoint != "" {
-			// downloading an archive
-			entrypointPath = filepath.Join(binPath, entrypoint)
-		}
+		// downloading an archive
+		entrypointPath := filepath.Join(binPath, entrypoint)
 
 		config.Bin[name].Path = entrypointPath
 
@@ -59,7 +54,7 @@ func DefBinDep(name, url, version, sha, entrypoint string, options ...Option) {
 			}
 
 			// Default to a simple binary
-			downloadBinary(name, url, version, sha)
+			downloadBinary(name, entrypoint, url, version, sha)
 		})
 
 		makeExe(entrypointPath)
@@ -173,19 +168,25 @@ func downloadBin(name, url, version, sha, extension string, patterns []string) {
 	}
 }
 
-func downloadBinary(name, url, version, sha string) {
-	filePath := binFilePath(name, version)
+func downloadBinary(name, entrypoint, url, version, sha string) {
+	dirPath := binFilePath(name, version)
 
+	err := os.MkdirAll(dirPath, 0700)
+	if err != nil {
+		panic(errors.Wrap(err, "failed to create dir for binary"))
+	}
+
+	binPath := filepath.Join(dirPath, entrypoint)
 	ui.Note().WithStringValue("bin", name).WithStringValue("url", url).Msg("Downloading ...")
-	err := downloadFile(filePath, url)
+	err = downloadFile(binPath, url)
 	if err != nil {
 		panic(errors.Wrap(err, "failed to download file"))
 	}
 
 	ui.Note().WithStringValue("bin", name).Msg("Checking signature ...")
-	verifyFile(filePath, sha)
+	verifyFile(binPath, sha)
 
-	makeExe(filePath)
+	makeExe(binPath)
 }
 
 func binFilePath(name, version string) string {
