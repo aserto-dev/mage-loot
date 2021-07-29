@@ -40,6 +40,21 @@ func GoDepOutput(name string) func(...string) (string, error) {
 	}
 }
 
+// GoDepOutputWith returns a command for running a go dependency with env vars.
+// Its output is returned.
+func GoDepOutputWith(name string) func(map[string]string, ...string) (string, error) {
+	def := config.Go[name]
+
+	if def == nil {
+		panic(errors.Errorf("didn't find a go binary dependency named '%s'", name))
+	}
+
+	return func(env map[string]string, args ...string) (string, error) {
+		def.Procure()
+		return sh.OutputWith(env, name, args...)
+	}
+}
+
 // GoDep returns a command for running a go dependency.
 // Its output is sent to stdout.
 func GoDep(name string) func(...string) error {
