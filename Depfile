@@ -27,6 +27,16 @@ go:
   protoc-gen-doc:
     importPath: "github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc"
     version: "v1.4.1"
+  buf:
+    importPath: "github.com/bufbuild/buf/cmd/buf"
+    version: "v0.48.2"
+  protoc-gen-buf-breaking:
+    importPath: "github.com/bufbuild/buf/cmd/protoc-gen-buf-breaking"
+    version: "v0.48.2"
+  protoc-gen-buf-lint:
+    importPath: "github.com/bufbuild/buf/cmd/protoc-gen-buf-lint"
+    version: "v0.48.2"
+
 bin:
   protoc:
     url: 'https://github.com/protocolbuffers/protobuf/releases/download/v{{.Version}}/protoc-{{.Version}}-{{if eq .OS "darwin"}}osx{{else}}{{.OS}}{{end}}-x86_64.zip'
