@@ -11,7 +11,7 @@ import (
 // Globs represents one filepath glob, with its elements joined by "**".
 type Globs []string
 
-func Glob(pattern string, exclude string) ([]string, error) {
+func Glob(pattern, exclude string) ([]string, error) {
 	in, err := glob(pattern)
 	if err != nil {
 		return nil, err

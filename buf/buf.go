@@ -46,8 +46,7 @@ func AddArg(arg string) func(*bufArgs) {
 func AddPaths(paths []string) func(*bufArgs) {
 	return func(o *bufArgs) {
 		for _, p := range paths {
-			o.args = append(o.args, "--path")
-			o.args = append(o.args, p)
+			o.args = append(o.args, "--path", p)
 		}
 	}
 }
