@@ -3,6 +3,8 @@
 [![Built with Mage](https://magefile.org/badge.svg)](https://magefile.org)
 ![ci](https://github.com/aserto-dev/mage-loot/workflows/ci/badge.svg?branch=main)
 [![Coverage Status](https://coveralls.io/repos/github/aserto-dev/mage-loot/badge.svg?branch=main&t=4v6ABX&service=github)](https://coveralls.io/github/aserto-dev/mage-loot?branch=main)
+[![Go Report Card](https://goreportcard.com/badge/github.com/aserto-dev/mage-loot)](https://goreportcard.com/report/github.com/aserto-dev/mage-loot)
+[![Go Reference](https://pkg.go.dev/badge/github.com/aserto-dev/mage-loot.svg)](https://pkg.go.dev/github.com/aserto-dev/mage-loot)
 
 Collection of reusable, useful code for magefiles.
 
