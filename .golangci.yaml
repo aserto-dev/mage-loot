@@ -37,8 +37,6 @@ linters-settings:
     min-complexity: 15
   goimports:
     local-prefixes: github.com/golangci/golangci-lint
-  golint:
-    min-confidence: 0
   gomnd:
     settings:
       mnd:
@@ -81,7 +79,6 @@ linters:
     - gocyclo
     - gofmt
     - goimports
-    - golint
     - gosec
     - gosimple
     - govet
@@ -89,7 +86,6 @@ linters:
     - lll
     - misspell
     - nakedret
-    - scopelint
     - staticcheck
     - structcheck
     - stylecheck
@@ -97,6 +93,8 @@ linters:
     - unconvert
     - unparam
     - varcheck
+    - revive
+    - exportloopref
 
 issues:
   # List of regexps of issue texts to exclude, empty list by default.

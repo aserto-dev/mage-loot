@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	ui  = clui.NewUI()
+	UI  = clui.NewUI()
 	cwd string
 )
 

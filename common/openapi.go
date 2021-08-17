@@ -37,7 +37,7 @@ func CreateOpenAPI(repo, outfile string, subServices []string) error {
 
 	sort.Strings(files)
 
-	ui.Normal().
+	UI.Normal().
 		Msg("openapi-create")
 
 	return merge(files, outfile)
@@ -52,7 +52,7 @@ func MergeOpenAPI(repo, outfile string, subServices []string) error {
 
 	sort.Strings(files)
 
-	ui.Normal().
+	UI.Normal().
 		Msg("openapi-merge")
 
 	return merge(files, outfile)
@@ -66,7 +66,7 @@ func merge(files []string, outfile string) error {
 	)
 
 	for _, file := range files {
-		ui.Normal().Compact().Msgf("<= %s", file)
+		UI.Normal().Compact().Msgf("<= %s", file)
 
 		src, err = loadFile(file)
 		if err != nil {
@@ -88,12 +88,10 @@ func merge(files []string, outfile string) error {
 	enc.SetIndent("", "  ")
 	enc.SetEscapeHTML(true)
 
-	ui.Normal().Msgf("=> %s", outfile)
+	UI.Normal().Msgf("=> %s", outfile)
 
-	if err := enc.Encode(dst); err != nil {
-		return err
-	}
-	return nil
+	err = enc.Encode(dst)
+	return err
 }
 
 func loadFile(filePath string) (map[string]interface{}, error) {

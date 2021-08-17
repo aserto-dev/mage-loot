@@ -8,7 +8,7 @@ import (
 
 // Test runs all tests in the project using gotestsum.
 func Test(args ...string) error {
-	ui.Normal().Msg("Running tests.")
+	UI.Normal().Msg("Running tests.")
 
 	return deps.GoDep("gotestsum")(
 		append([]string{"--format", "short-verbose", "--"},
@@ -20,6 +20,6 @@ func Test(args ...string) error {
 
 // Lint runs linting against the project.
 func Lint() error {
-	ui.Normal().Msg("Running lint.")
+	UI.Normal().Msg("Running lint.")
 	return deps.GoDep("golangci-lint")("run")
 }

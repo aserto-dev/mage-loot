@@ -8,7 +8,7 @@ import (
 // Generate runs go generate for the specified paths.
 // If no paths are used, it generates for './...'.
 func Generate(paths ...string) error {
-	ui.Normal().Msg("Generating code.")
+	UI.Normal().Msg("Generating code.")
 
 	if len(paths) == 0 {
 		if err := sh.RunV("go", "generate", "./..."); err != nil {

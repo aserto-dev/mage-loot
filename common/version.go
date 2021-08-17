@@ -1,6 +1,8 @@
 package common
 
 import (
+	"strings"
+
 	"github.com/aserto-dev/mage-loot/deps"
 	"github.com/magefile/mage/sh"
 	"github.com/pkg/errors"
@@ -22,4 +24,17 @@ func Version() (string, error) {
 	}
 
 	return out, nil
+}
+
+func NextVersion(part string) (string, error) {
+	out, err := deps.GoDepOutput("calc-version")("--next", part)
+	if err != nil {
+		return "", errors.Wrap(err, "please make sure you have a valid tag - failed to determine version")
+	}
+
+	return out, nil
+}
+
+func IsDirty(version string) bool {
+	return strings.HasSuffix(version, "-dirty")
 }

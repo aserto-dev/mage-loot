@@ -19,7 +19,7 @@ func DockerImage(repositoryAndTag string, args ...string) error {
 	}
 	date := time.Now().UTC().Format(time.RFC3339)
 
-	ui.Normal().
+	UI.Normal().
 		WithStringValue("version", version).
 		WithStringValue("commit", commit).
 		WithStringValue("date", date).

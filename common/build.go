@@ -38,7 +38,7 @@ func BuildAll(args ...string) error {
 	}
 	date := time.Now().UTC().Format(time.RFC3339)
 
-	ui.Normal().
+	UI.Normal().
 		WithStringValue("version", version).
 		WithStringValue("commit", commit).
 		WithStringValue("date", date).
@@ -56,7 +56,7 @@ func BuildAll(args ...string) error {
 
 		for _, a := range Architectures {
 			for _, o := range OSList {
-				ui.Normal().
+				UI.Normal().
 					WithStringValue("os", o).
 					WithStringValue("arch", a).
 					WithStringValue("cmd", c.Name()).
@@ -100,7 +100,7 @@ func Build(args ...string) error {
 	}
 	date := time.Now().UTC().Format(time.RFC3339)
 
-	ui.Normal().
+	UI.Normal().
 		WithStringValue("version", version).
 		WithStringValue("commit", commit).
 		WithStringValue("date", date).
