@@ -2,8 +2,8 @@ github.com/allegro/bigcache/v2 v2.2.5 h1:mRc8r6GQjuJsmSKQNPsR5jQVXc8IJ1xsW5YXUYM
 github.com/allegro/bigcache/v2 v2.2.5/go.mod h1:FppZsIO+IZk7gCuj5FiIDHGygD9xvWQcqg1uIPMb6tY=
 github.com/allegro/bigcache/v3 v3.0.0 h1:5Hxq+GTy8gHEeQccCZZDCfZRTydUfErdUf0iVDcMAFg=
 github.com/allegro/bigcache/v3 v3.0.0/go.mod h1:t5TAJn1B9qvf/VlJrSM1r6NlFAYoFDubYUsCuIO9nUQ=
-github.com/aserto-dev/clui v0.0.1 h1:dK9tmy/0mIdM/Z3G38j0GkQTalGYQ3CyEObND0MGNy8=
-github.com/aserto-dev/clui v0.0.1/go.mod h1:rk87XJefw6Pp8ef3nTirzMVTDE0g2BWojwAZy3cC/TY=
+github.com/aserto-dev/clui v0.1.1 h1:jFVECui7pyaZyymeXtw8qkBI+67wtQJfiIpd06MdToU=
+github.com/aserto-dev/clui v0.1.1/go.mod h1:rk87XJefw6Pp8ef3nTirzMVTDE0g2BWojwAZy3cC/TY=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
