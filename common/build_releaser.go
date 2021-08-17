@@ -1,0 +1,13 @@
+package common
+
+import "github.com/aserto-dev/mage-loot/deps"
+
+// BuildAllReleaser builds all binaries for all OSes and architectures, in preparation for a release.
+func BuildAllReleaser(args ...string) error {
+	return deps.GoDep("goreleaser")(append([]string{"build", "--rm-dist"}, args...)...)
+}
+
+// BuildRleaser builds the project.
+func BuildReleaser(args ...string) error {
+	return deps.GoDep("goreleaser")(append([]string{"build", "--rm-dist", "--snapshot", "--single-target"}, args...)...)
+}
