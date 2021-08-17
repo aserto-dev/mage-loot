@@ -37,6 +37,7 @@
     "protoc",
     "pseudomuto",
     "shogo",
+    "sver",
     "tidwall"
   ]
 }

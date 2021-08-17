@@ -18,7 +18,7 @@ func Commit() (string, error) {
 }
 
 func Version() (string, error) {
-	out, err := deps.GoDepOutput("calc-version")()
+	out, err := deps.GoDepOutput("sver")()
 	if err != nil {
 		return "", errors.Wrap(err, "please make sure you have a valid tag - failed to determine version")
 	}
@@ -27,7 +27,7 @@ func Version() (string, error) {
 }
 
 func NextVersion(part string) (string, error) {
-	out, err := deps.GoDepOutput("calc-version")("--next", part)
+	out, err := deps.GoDepOutput("sver")("--next", part)
 	if err != nil {
 		return "", errors.Wrap(err, "please make sure you have a valid tag - failed to determine version")
 	}
@@ -36,5 +36,5 @@ func NextVersion(part string) (string, error) {
 }
 
 func IsDirty(version string) bool {
-	return strings.HasSuffix(version, "-dirty")
+	return strings.Contains(version, "-dirty")
 }
