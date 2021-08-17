@@ -11,3 +11,8 @@ func BuildAllReleaser(args ...string) error {
 func BuildReleaser(args ...string) error {
 	return deps.GoDep("goreleaser")(append([]string{"build", "--rm-dist", "--snapshot", "--single-target"}, args...)...)
 }
+
+// Release releases the project.
+func Release(args ...string) error {
+	return deps.GoDep("goreleaser")(append([]string{"release"}, args...)...)
+}
