@@ -7,7 +7,7 @@ func BuildAllReleaser(args ...string) error {
 	return deps.GoDep("goreleaser")(append([]string{"build", "--rm-dist"}, args...)...)
 }
 
-// BuildRleaser builds the project.
+// BuildReleaser builds the project.
 func BuildReleaser(args ...string) error {
 	return deps.GoDep("goreleaser")(append([]string{"build", "--rm-dist", "--snapshot", "--single-target"}, args...)...)
 }
