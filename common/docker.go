@@ -1,11 +1,48 @@
 package common
 
 import (
+	"bufio"
+	"os"
+	"strings"
 	"time"
 
+	"github.com/aserto-dev/mage-loot/deps"
 	"github.com/magefile/mage/sh"
 	"github.com/pkg/errors"
 )
+
+// DockerPush pushes an image
+func DockerPush(existingImage, imageToPush string) error {
+	UI.Normal().WithStringValue("tag", imageToPush).Msg("Tagging image.")
+
+	err := sh.RunV("docker", "tag", existingImage, imageToPush)
+	if err != nil {
+		return errors.Wrap(err, "failed to tag image")
+	}
+
+	return sh.RunV("docker", "push", imageToPush)
+}
+
+// DockerTags uses sver to get a list of tags to be pushed.
+// Expects env vars DOCKER_USERNAME and DOCKER_PASSWORD to be set.
+func DockerTags(registry, image string) ([]string, error) {
+	user := os.ExpandEnv("$DOCKER_USERNAME")
+	password := os.ExpandEnv("$DOCKER_PASSWORD")
+
+	out, err := deps.GoDepOutput("sver")("tags", "-u", user, "-p", password, "-s", registry, image)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to read tags in registry: %s", out)
+	}
+
+	result := []string{}
+
+	scanner := bufio.NewScanner(strings.NewReader(out))
+	for scanner.Scan() {
+		result = append(result, scanner.Text())
+	}
+
+	return result, nil
+}
 
 // DockerImage builds the docker image for the project.
 func DockerImage(repositoryAndTag string, args ...string) error {

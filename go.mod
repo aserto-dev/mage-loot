@@ -14,4 +14,5 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/tidwall/gjson v1.8.1
 	gopkg.in/yaml.v2 v2.4.0
+	k8s.io/utils v0.0.0-20210802155522-efc7438f0176
 )
