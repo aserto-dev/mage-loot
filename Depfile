@@ -13,8 +13,8 @@ go:
     importPath: "github.com/google/wire/cmd/wire"
     version: "v0.5.0"
   sver:
-    importPath: "github.com/aserto-dev/sver"
-    version: "v1.2.3"
+    importPath: "github.com/aserto-dev/sver/cmd/sver"
+    version: "v1.3.0"
   gotestsum:
     importPath: "gotest.tools/gotestsum"
     version: "v1.6.4"
