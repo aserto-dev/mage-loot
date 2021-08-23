@@ -119,13 +119,16 @@ func CopyOpenAPI(repo, service, outfile string) error {
 	}
 
 	version := gjson.Get(jsonStr, "Require.#(Path==\""+repo+"\").Version")
+	if version.String() == "" {
+		return errors.Errorf("no version info found")
+	}
 
 	goModCache, err := sh.Output("go", "env", "GOMODCACHE")
 	if err != nil {
 		return err
 	}
 
-	fp := path.Join(goModCache, repo+"@"+version.String(), "openapi", service, "openapi.json")
+	fp := path.Join(goModCache, repo+"@"+version.String(), "service", service, "openapi.json")
 
 	return copyFile(fp, outfile, true)
 }
