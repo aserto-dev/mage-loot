@@ -34,7 +34,7 @@ linters-settings:
       - octalLiteral
       - wrapperFunc
   gocyclo:
-    min-complexity: 15
+    min-complexity: 16
   goimports:
     local-prefixes: github.com/golangci/golangci-lint
   gomnd:
