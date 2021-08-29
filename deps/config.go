@@ -32,6 +32,7 @@ var (
 		Lib: map[string]*depDetails{},
 	}
 
+	skipProcurement  = false
 	cmdRegisterMutex = &sync.Mutex{}
 	ui               = clui.NewUI()
 )
@@ -41,11 +42,17 @@ var (
 func GetAllDeps() {
 	for name, bin := range config.Bin {
 		ui.Normal().Msgf("Procuring bin '%s'", name)
-		bin.Procure()
+
+		if !skipProcurement {
+			bin.Procure()
+		}
 	}
 	for name, goBin := range config.Go {
 		ui.Normal().Msgf("Procuring go bin '%s'", name)
-		goBin.Procure()
+
+		if !skipProcurement {
+			goBin.Procure()
+		}
 	}
 
 	ui.Exclamation().Msg("Cleaning lib dir.")
@@ -55,7 +62,10 @@ func GetAllDeps() {
 	}
 	for name, lib := range config.Lib {
 		ui.Normal().Msgf("Procuring lib '%s'", name)
-		lib.Procure()
+
+		if !skipProcurement {
+			lib.Procure()
+		}
 	}
 }
 
@@ -79,6 +89,8 @@ func lookupConfig(dir string) string {
 }
 
 func init() {
+	_, skipProcurement = os.LookupEnv("DEPFILE_SKIP_PROCUREMENT")
+
 	configFile := lookupConfig(".")
 	if configFile == "" {
 		return

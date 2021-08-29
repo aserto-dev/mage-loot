@@ -71,7 +71,10 @@ func BinDep(name string) func(...string) error {
 	}
 
 	return func(args ...string) error {
-		def.Procure()
+		if !skipProcurement {
+			def.Procure()
+		}
+
 		return sh.RunV(def.Path, args...)
 	}
 }
@@ -86,7 +89,10 @@ func BinDepWithEnv(env map[string]string, name string) func(...string) error {
 	}
 
 	return func(args ...string) error {
-		def.Procure()
+		if !skipProcurement {
+			def.Procure()
+		}
+
 		return sh.RunWithV(env, name, args...)
 	}
 }
@@ -101,7 +107,10 @@ func BinDepOut(name string) func(...string) (string, error) {
 	}
 
 	return func(args ...string) (string, error) {
-		def.Procure()
+		if !skipProcurement {
+			def.Procure()
+		}
+
 		return sh.Output(def.Path, args...)
 	}
 }
@@ -113,7 +122,10 @@ func BinPath(name string) string {
 		panic(errors.Errorf("didn't find a binary dependency named '%s'", name))
 	}
 
-	def.Procure()
+	if !skipProcurement {
+		def.Procure()
+	}
+
 	return def.Path
 }
 

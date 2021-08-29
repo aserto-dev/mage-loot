@@ -35,7 +35,10 @@ func GoDepOutput(name string) func(...string) (string, error) {
 	}
 
 	return func(args ...string) (string, error) {
-		def.Procure()
+		if !skipProcurement {
+			def.Procure()
+		}
+
 		return sh.Output(name, args...)
 	}
 }
@@ -50,7 +53,10 @@ func GoDepOutputWith(name string) func(map[string]string, ...string) (string, er
 	}
 
 	return func(env map[string]string, args ...string) (string, error) {
-		def.Procure()
+		if !skipProcurement {
+			def.Procure()
+		}
+
 		return sh.OutputWith(env, name, args...)
 	}
 }
@@ -65,7 +71,10 @@ func GoDep(name string) func(...string) error {
 	}
 
 	return func(args ...string) error {
-		def.Procure()
+		if !skipProcurement {
+			def.Procure()
+		}
+
 		return sh.RunV(name, args...)
 	}
 }
