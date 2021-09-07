@@ -34,7 +34,7 @@ func ExtractTarGz(src, dest string) error {
 		}
 
 		// Tars have a header for the current directory. Skip it.
-		if header.Name == "./" {
+		if header.Name == currentDirHeader {
 			continue
 		}
 

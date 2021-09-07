@@ -12,7 +12,9 @@ import (
 	"github.com/ulikunitz/xz"
 )
 
-func ExtractTarXz(src, dest string) error {
+const currentDirHeader string = "./"
+
+func ExtractTarXz(src, dest string) error { //nolint:funlen,gocyclo // to be refactored
 	hardLinks := make(map[string]string)
 
 	xzStream, err := os.Open(src)
@@ -36,7 +38,7 @@ func ExtractTarXz(src, dest string) error {
 		}
 
 		// Tars have a header for the current directory. Skip it.
-		if header.Name == "./" {
+		if header.Name == currentDirHeader {
 			continue
 		}
 
@@ -80,7 +82,7 @@ func ExtractTarXz(src, dest string) error {
 			continue
 
 		case tar.TypeSymlink:
-			linkPath := filepath.Join(dest, header.Name)
+			linkPath := filepath.Join(dest, header.Name) //nolint:gosec // required to establish links from archive
 			if err := os.Symlink(header.Linkname, linkPath); err != nil {
 				if os.IsExist(err) {
 					continue
@@ -91,8 +93,8 @@ func ExtractTarXz(src, dest string) error {
 
 		case tar.TypeLink:
 			/* Store details of hard links, which we process finally */
-			linkPath := filepath.Join(dest, header.Linkname)
-			linkPath2 := filepath.Join(dest, header.Name)
+			linkPath := filepath.Join(dest, header.Linkname) //nolint:gosec // required to establish symlinks from archive
+			linkPath2 := filepath.Join(dest, header.Name)    //nolint:gosec // required to establish symlinks from archive
 			hardLinks[linkPath2] = linkPath
 			continue
 

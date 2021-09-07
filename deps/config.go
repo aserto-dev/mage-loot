@@ -132,7 +132,7 @@ func init() {
 		panic(errors.Wrapf(err, "failed to unmarshal %s", configFile))
 	}
 
-	for name, bin := range configs.Bin {
+	for name, bin := range configs.Bin { //nolint:gocritic // TODO refactor
 		options := []Option{}
 
 		if len(bin.ZipPaths) != 0 {
@@ -160,7 +160,7 @@ func init() {
 		DefBinDep(name, url, bin.Version, sha, entrypoint, options...)
 	}
 
-	for name, lib := range configs.Lib {
+	for name, lib := range configs.Lib { //nolint:gocritic // TODO refactor
 		options := []Option{}
 		if len(lib.ZipPaths) != 0 {
 			zipPaths := parseArrayTemplate(lib.ZipPaths, lib.Version)

@@ -1,13 +1,14 @@
 ---
 bin:
   vault:
-    url: "https://releases.hashicorp.com/vault/{{.Version}}/vault_{{.Version}}_{{.OS}}_amd64.zip"
-    version: "1.7.1"
+    url: "https://releases.hashicorp.com/vault/{{.Version}}/vault_{{.Version}}_{{.OS}}_{{.Arch}}.zip"
+    version: "1.8.1"
     zipPaths:
     - "./vault"
     sha:
-      linux-amd64: "61795d2deeffddee0b556869097c997c5afccbde556d3a103ec273cc24523808"
-      darwin-amd64: "f08f61231a31875334204ac94e726cf032e284ee95b096ab475b3699b9fb3f90"
+      linux-amd64: "bb411f2bbad79c2e4f0640f1d3d5ef50e2bda7d4f40875a56917c95ff783c2db"
+      darwin-amd64: "f87221e4f56b3da41f0a029bf2b48896ec3be84dd7075bdb9466def1e056f809"
+      darwin-arm64: "571985c34990a2a7b913cee8c50be42b34c8d8cb751a2aed2c80121ad4b4e44b"
 go:
   wire:
     importPath: "github.com/google/wire/cmd/wire"
@@ -17,10 +18,10 @@ go:
     version: "v1.3.0"
   gotestsum:
     importPath: "gotest.tools/gotestsum"
-    version: "v1.6.4"
+    version: "v1.7.0"
   golangci-lint:
     importPath: "github.com/golangci/golangci-lint/cmd/golangci-lint"
-    version: "v1.41.1"
+    version: "v1.42.1"
   protoc-gen-go:
     importPath: "google.golang.org/protobuf/cmd/protoc-gen-go"
     version: "v1.26.0"
@@ -38,13 +39,13 @@ go:
     version: "v1.4.1"
   buf:
     importPath: "github.com/bufbuild/buf/cmd/buf"
-    version: "v0.48.2"
+    version: "v0.53.0"
   protoc-gen-buf-breaking:
     importPath: "github.com/bufbuild/buf/cmd/protoc-gen-buf-breaking"
-    version: "v0.48.2"
+    version: "v0.53.0"
   protoc-gen-buf-lint:
     importPath: "github.com/bufbuild/buf/cmd/protoc-gen-buf-lint"
-    version: "v0.48.2"
+    version: "v0.53.0"
 
 bin:
   protoc:
@@ -53,6 +54,7 @@ bin:
     sha:
       linux-amd64: "d4246a5136cf9cd1abc851c521a1ad6b8884df4feded8b9cbd5e2a2226d4b357"
       darwin-amd64: "68901eb7ef5b55d7f2df3241ab0b8d97ee5192d3902c59e7adf461adc058e9f1"
+      darwin-arm64: "68901eb7ef5b55d7f2df3241ab0b8d97ee5192d3902c59e7adf461adc058e9f1"
     zipPaths:
     - "bin/protoc"
 lib:
