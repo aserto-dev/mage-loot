@@ -53,6 +53,11 @@ func DefBinDep(name, url, version, sha, entrypoint string, options ...Option) {
 				return
 			}
 
+			if len(ops.txzPaths) != 0 {
+				downloadTxzBin(name, url, version, sha, ops.txzPaths)
+				return
+			}
+
 			// Default to a simple binary
 			downloadBinary(name, entrypoint, url, version, sha)
 		})
@@ -131,6 +136,10 @@ func BinPath(name string) string {
 
 func downloadTgzBin(name, url, version, sha string, patterns []string) {
 	downloadBin(name, url, version, sha, "tgz", patterns)
+}
+
+func downloadTxzBin(name, url, version, sha string, patterns []string) {
+	downloadBin(name, url, version, sha, "txz", patterns)
 }
 
 func downloadZippedBin(name, url, version, sha string, patterns []string) {

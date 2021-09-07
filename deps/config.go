@@ -110,6 +110,7 @@ func init() {
 			SHA        map[string]string `yaml:"sha"`
 			ZipPaths   []string          `yaml:"zipPaths"`
 			TGzPaths   []string          `yaml:"tgzPaths"`
+			TXzPaths   []string          `yaml:"txzPaths"`
 		} `yaml:"bin"`
 		Lib map[string]struct {
 			Version   string   `yaml:"version"`
@@ -117,6 +118,7 @@ func init() {
 			SHA       string   `yaml:"sha"`
 			ZipPaths  []string `yaml:"zipPaths"`
 			TGzPaths  []string `yaml:"tgzPaths"`
+			TXzPaths  []string `yaml:"txzPaths"`
 			LibPrefix string   `yaml:"libPrefix"`
 		} `yaml:"lib"`
 	}{}
@@ -141,6 +143,10 @@ func init() {
 			tgzPaths := parseArrayTemplate(bin.TGzPaths, bin.Version)
 			options = append(options, WithTGzPaths(tgzPaths...))
 		}
+		if len(bin.TXzPaths) != 0 {
+			txzPaths := parseArrayTemplate(bin.TXzPaths, bin.Version)
+			options = append(options, WithTXzPaths(txzPaths...))
+		}
 
 		sha, ok := bin.SHA[runtime.GOOS+"-"+runtime.GOARCH]
 		if !ok {
@@ -164,6 +170,11 @@ func init() {
 			tgzPaths := parseArrayTemplate(lib.TGzPaths, lib.Version)
 			options = append(options, WithTGzPaths(tgzPaths...))
 		}
+		if len(lib.TXzPaths) != 0 {
+			txzPaths := parseArrayTemplate(lib.TXzPaths, lib.Version)
+			options = append(options, WithTGzPaths(txzPaths...))
+		}
+
 		if lib.LibPrefix != "" {
 			libPrefix := parseStringTemplate(lib.LibPrefix, lib.Version)
 			options = append(options, WithLibPrefix(libPrefix))

@@ -25,6 +25,7 @@ var (
 type depOptions struct {
 	zipPaths  []string
 	tgzPaths  []string
+	txzPaths  []string
 	libPrefix string
 }
 
@@ -45,6 +46,14 @@ func WithZipPaths(paths ...string) Option {
 func WithTGzPaths(paths ...string) Option {
 	return func(o *depOptions) {
 		o.tgzPaths = paths
+	}
+}
+
+// WithTXzPaths tells us the binary or lib lives inside
+// a tarred and xz utility compressed archive
+func WithTXzPaths(paths ...string) Option {
+	return func(o *depOptions) {
+		o.txzPaths = paths
 	}
 }
 
