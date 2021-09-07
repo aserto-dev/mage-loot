@@ -110,6 +110,7 @@ func init() {
 			SHA        map[string]string `yaml:"sha"`
 			ZipPaths   []string          `yaml:"zipPaths"`
 			TGzPaths   []string          `yaml:"tgzPaths"`
+			TXzPaths   []string          `yaml:"txzPaths"`
 		} `yaml:"bin"`
 		Lib map[string]struct {
 			Version   string   `yaml:"version"`
@@ -117,6 +118,7 @@ func init() {
 			SHA       string   `yaml:"sha"`
 			ZipPaths  []string `yaml:"zipPaths"`
 			TGzPaths  []string `yaml:"tgzPaths"`
+			TXzPaths  []string `yaml:"txzPaths"`
 			LibPrefix string   `yaml:"libPrefix"`
 		} `yaml:"lib"`
 	}{}
@@ -130,7 +132,7 @@ func init() {
 		panic(errors.Wrapf(err, "failed to unmarshal %s", configFile))
 	}
 
-	for name, bin := range configs.Bin {
+	for name, bin := range configs.Bin { //nolint:gocritic // TODO refactor
 		options := []Option{}
 
 		if len(bin.ZipPaths) != 0 {
@@ -140,6 +142,10 @@ func init() {
 		if len(bin.TGzPaths) != 0 {
 			tgzPaths := parseArrayTemplate(bin.TGzPaths, bin.Version)
 			options = append(options, WithTGzPaths(tgzPaths...))
+		}
+		if len(bin.TXzPaths) != 0 {
+			txzPaths := parseArrayTemplate(bin.TXzPaths, bin.Version)
+			options = append(options, WithTXzPaths(txzPaths...))
 		}
 
 		sha, ok := bin.SHA[runtime.GOOS+"-"+runtime.GOARCH]
@@ -154,7 +160,7 @@ func init() {
 		DefBinDep(name, url, bin.Version, sha, entrypoint, options...)
 	}
 
-	for name, lib := range configs.Lib {
+	for name, lib := range configs.Lib { //nolint:gocritic // TODO refactor
 		options := []Option{}
 		if len(lib.ZipPaths) != 0 {
 			zipPaths := parseArrayTemplate(lib.ZipPaths, lib.Version)
@@ -164,6 +170,11 @@ func init() {
 			tgzPaths := parseArrayTemplate(lib.TGzPaths, lib.Version)
 			options = append(options, WithTGzPaths(tgzPaths...))
 		}
+		if len(lib.TXzPaths) != 0 {
+			txzPaths := parseArrayTemplate(lib.TXzPaths, lib.Version)
+			options = append(options, WithTGzPaths(txzPaths...))
+		}
+
 		if lib.LibPrefix != "" {
 			libPrefix := parseStringTemplate(lib.LibPrefix, lib.Version)
 			options = append(options, WithLibPrefix(libPrefix))
