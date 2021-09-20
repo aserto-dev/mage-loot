@@ -12,7 +12,7 @@ require (
 	github.com/magefile/mage v1.11.0
 	github.com/onsi/gomega v1.16.0
 	github.com/pkg/errors v0.9.1
-	github.com/tidwall/gjson v1.9.0
+	github.com/tidwall/gjson v1.9.1
 	github.com/ulikunitz/xz v0.5.10
 	gopkg.in/yaml.v2 v2.4.0
 )
