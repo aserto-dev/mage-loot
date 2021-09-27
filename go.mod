@@ -3,8 +3,7 @@ module github.com/aserto-dev/mage-loot
 go 1.16
 
 require (
-	github.com/allegro/bigcache/v2 v2.2.5 // indirect
-	github.com/allegro/bigcache/v3 v3.0.0
+	github.com/allegro/bigcache/v3 v3.0.1
 	github.com/aserto-dev/clui v0.1.2
 	github.com/go-test/deep v1.0.7
 	github.com/imdario/mergo v0.3.12
