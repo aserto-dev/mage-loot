@@ -5,7 +5,9 @@ import (
 	"compress/gzip"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -49,36 +51,65 @@ func ExtractTarGz(src, dest string) error {
 			return fmt.Errorf("%s: illegal file path", fpath)
 		}
 
-		switch header.Typeflag {
-		case tar.TypeDir:
-			if err := os.MkdirAll(fpath, 0755); err != nil {
-				return errors.Wrap(err, "failed to create dir")
-			}
-		case tar.TypeReg:
-			outFile, err := os.Create(fpath)
-			if err != nil {
-				return errors.Wrap(err, "failed to create file")
-			}
+		err = createTarResource(header, fpath, tarReader)
+		if err != nil {
+			return err
+		}
 
-			totalRead := int64(0)
-			for {
-				n, err := io.CopyN(outFile, tarReader, 1024)
-				totalRead += n
-				if err != nil {
-					if err == io.EOF {
-						break
-					}
-					return err
-				}
+	}
+
+	return nil
+}
+
+func createTarResource(header *tar.Header, fpath string, tarReader *tar.Reader) error {
+	if err := os.MkdirAll(path.Dir(fpath), 0755); err != nil {
+		return errors.Wrap(err, "failed to create dir")
+	}
+	switch header.Typeflag {
+	case tar.TypeDir:
+		if err := os.MkdirAll(fpath, 0755); err != nil {
+			return errors.Wrap(err, "failed to create dir")
+		}
+	case tar.TypeReg:
+
+		if err := writeTarFile(tarReader, fpath, header.Mode); err != nil {
+			return err
+		}
+
+	case tar.TypeSymlink:
+		if err := os.Symlink(header.Linkname, fpath); err != nil {
+			return errors.Wrapf(err, "failed to create symlink %s to file %s", fpath, header.Linkname)
+		}
+
+	default:
+		return errors.Errorf(
+			"unknown type: %s in %s", string(header.Typeflag), header.Name)
+	}
+	return nil
+}
+
+func writeTarFile(tarReader *tar.Reader, fpath string, fileMode int64) error {
+	outFile, err := os.Create(fpath)
+	if err != nil {
+		return errors.Wrap(err, "failed to create file")
+	}
+	err = outFile.Chmod(fs.FileMode(fileMode))
+	if err != nil {
+		return errors.Wrapf(err, "cannot change mode of file: %s", fpath)
+	}
+
+	totalRead := int64(0)
+	for {
+		n, err := io.CopyN(outFile, tarReader, 1024)
+		totalRead += n
+		if err != nil {
+			if err == io.EOF {
+				break
 			}
-
-			outFile.Close()
-
-		default:
-			return errors.Errorf(
-				"unknown type: %s in %s", string(header.Typeflag), header.Name)
+			return err
 		}
 	}
 
+	outFile.Close()
 	return nil
 }
