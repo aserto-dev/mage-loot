@@ -19,7 +19,10 @@ func Test(args ...string) error {
 }
 
 // Lint runs linting against the project.
-func Lint() error {
+func Lint(args ...string) error {
 	UI.Normal().Msg("Running lint.")
-	return deps.GoDep("golangci-lint")("run")
+
+	return deps.GoDep("golangci-lint")(
+		append([]string{"run"}, args...)...,
+	)
 }
