@@ -1,6 +1,7 @@
 package deps
 
 import (
+	"io"
 	"os"
 	"path/filepath"
 	"sync"
@@ -63,6 +64,25 @@ func DefBinDep(name, url, version, sha, entrypoint string, options ...Option) {
 		})
 
 		makeExe(entrypointPath)
+	}
+}
+
+// BinExec returns a command for running a binary dependency.
+// Its stdout and stderr are pipeped to the given writers.
+func BinExec(name string, stdout, stderr io.Writer) func(...string) error {
+	def := config.Bin[name]
+
+	if def == nil {
+		panic(errors.Errorf("didn't find a binary dependency named '%s'", name))
+	}
+
+	return func(args ...string) error {
+		if !skipProcurement {
+			def.Procure()
+		}
+
+		_, err := sh.Exec(nil, stdout, stderr, name, args...)
+		return err
 	}
 }
 
