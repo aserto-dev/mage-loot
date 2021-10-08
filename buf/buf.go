@@ -68,7 +68,7 @@ func AddPaths(paths []string) func(*bufArgs) {
 // Gets all the tags from a buf repository
 func GetTags(repository string) ([]Tag, error) {
 	bufDep := deps.GoDepOutput("buf")
-	out, err := bufDep("beta", "registry", "tag", "list", repository, "--format", "json")
+	out, err := bufDep("beta", "registry", "tag", "list", repository, "--format", "json", "--reverse")
 	if err != nil {
 		ui.Problem().Msg(fmt.Sprintf("Error retrieving tags for %s. Message: %s, Error: %s", repository, out, err.Error()))
 		return nil, err
