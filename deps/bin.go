@@ -140,6 +140,24 @@ func BinDepOut(name string) func(...string) (string, error) {
 	}
 }
 
+// BinDepOutWithEnv returns a command for running a binary dependency.
+// It accepts an env map for the new process. Its output is returned.
+func BinDepOutWithEnv(env map[string]string, name string) func(...string) (string, error) {
+	def := config.Bin[name]
+
+	if def == nil {
+		panic(errors.Errorf("didn't find a binary dependency named '%s'", name))
+	}
+
+	return func(args ...string) (string, error) {
+		if !skipProcurement {
+			def.Procure()
+		}
+
+		return sh.OutputWith(env, def.Path, args...)
+	}
+}
+
 func BinPath(name string) string {
 	def := config.Bin[name]
 
