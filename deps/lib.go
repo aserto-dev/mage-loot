@@ -10,7 +10,7 @@ import (
 )
 
 // DefLibDep makes sure a lib dependency is downloaded and unpacks it
-func DefLibDep(name, url, sha string, options ...Option) {
+func DefLibDep(name, url, sha, outputDir string, options ...Option) {
 	cmdRegisterMutex.Lock()
 	defer cmdRegisterMutex.Unlock()
 
@@ -27,27 +27,27 @@ func DefLibDep(name, url, sha string, options ...Option) {
 			}
 
 			if len(ops.zipPaths) != 0 {
-				downloadZippedLib(name, url, sha, ops.libPrefix, ops.zipPaths)
+				downloadZippedLib(name, url, sha, ops.libPrefix, outputDir, ops.zipPaths)
 				return
 			}
 
 			if len(ops.tgzPaths) != 0 {
-				downloadTgzLib(name, url, sha, ops.libPrefix, ops.tgzPaths)
+				downloadTgzLib(name, url, sha, ops.libPrefix, outputDir, ops.tgzPaths)
 				return
 			}
 		})
 	}
 }
 
-func downloadZippedLib(name, url, sha, prefix string, patterns []string) {
-	downloadLib(name, url, sha, "zip", prefix, patterns)
+func downloadZippedLib(name, url, sha, prefix, outputDir string, patterns []string) {
+	downloadLib(name, url, sha, "zip", prefix, outputDir, patterns)
 }
 
-func downloadTgzLib(name, url, sha, prefix string, patterns []string) {
-	downloadLib(name, url, sha, "tgz", prefix, patterns)
+func downloadTgzLib(name, url, sha, prefix, outputDir string, patterns []string) {
+	downloadLib(name, url, sha, "tgz", prefix, outputDir, patterns)
 }
 
-func downloadLib(name, url, sha, extension, prefix string, patterns []string) {
+func downloadLib(name, url, sha, extension, prefix, outputDir string, patterns []string) {
 	filePath := tmpFile(name + "." + extension)
 	defer os.RemoveAll(filepath.Dir(filePath))
 
@@ -61,6 +61,10 @@ func downloadLib(name, url, sha, extension, prefix string, patterns []string) {
 	verifyFile(filePath, sha)
 
 	libPath := LibDir()
+	if outputDir != "" {
+		libPath = filepath.Join(libPath, outputDir)
+	}
+
 	err = os.MkdirAll(libPath, 0700)
 	if err != nil {
 		panic(errors.Wrapf(err, "failed to create directory '%s'", libPath))

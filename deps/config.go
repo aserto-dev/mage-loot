@@ -115,6 +115,7 @@ func init() {
 		Lib map[string]struct {
 			Version   string   `yaml:"version"`
 			URL       string   `yaml:"url"`
+			OutputDir string   `yaml:"outputDir"`
 			SHA       string   `yaml:"sha"`
 			ZipPaths  []string `yaml:"zipPaths"`
 			TGzPaths  []string `yaml:"tgzPaths"`
@@ -182,7 +183,7 @@ func init() {
 
 		url := parseStringTemplate(lib.URL, lib.Version)
 
-		DefLibDep(name, url, lib.SHA, options...)
+		DefLibDep(name, url, lib.SHA, lib.OutputDir, options...)
 	}
 
 	for name, goBin := range configs.Go {
