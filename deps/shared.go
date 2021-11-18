@@ -14,6 +14,7 @@ import (
 const (
 	externalDir = ".ext"
 	binDir      = "bin"
+	goBinDir    = "gobin"
 	libDir      = "lib"
 	tmpDir      = "tmp"
 )
@@ -120,8 +121,15 @@ func LibDir() string {
 	return filepath.Join(currentDir, externalDir, libDir)
 }
 
+// LibDir returns the absolute path to the ext tmp dir
 func ExtTmpDir() string {
 	return filepath.Join(currentDir, externalDir, tmpDir)
+}
+
+// GoBinDir returns the absolute path to the bin directory of tools
+// that are not go.
+func GoBinDir() string {
+	return filepath.Join(currentDir, externalDir, goBinDir)
 }
 
 func tmpFile(name string) string {
