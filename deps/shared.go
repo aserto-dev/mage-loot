@@ -127,7 +127,6 @@ func ExtTmpDir() string {
 }
 
 // GoBinDir returns the absolute path to the bin directory of tools
-// that are not go.
 func GoBinDir() string {
 	return filepath.Join(currentDir, externalDir, goBinDir)
 }
