@@ -13,6 +13,39 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+type depFile struct {
+	Go  map[string]goConfig  `yaml:"go"`
+	Bin map[string]binConfig `yaml:"bin"`
+	Lib map[string]libConfig `yaml:"lib"`
+}
+
+type goConfig struct {
+	ImportPath string `yaml:"importPath"`
+	Version    string `yaml:"version"`
+	Entrypoint string `yaml:"entrypoint"`
+}
+
+type binConfig struct {
+	Version    string            `yaml:"version"`
+	URL        string            `yaml:"url"`
+	Entrypoint string            `yaml:"entrypoint"`
+	SHA        map[string]string `yaml:"sha"`
+	ZipPaths   []string          `yaml:"zipPaths"`
+	TGzPaths   []string          `yaml:"tgzPaths"`
+	TXzPaths   []string          `yaml:"txzPaths"`
+}
+
+type libConfig struct {
+	Version   string   `yaml:"version"`
+	URL       string   `yaml:"url"`
+	OutputDir string   `yaml:"outputDir"`
+	SHA       string   `yaml:"sha"`
+	ZipPaths  []string `yaml:"zipPaths"`
+	TGzPaths  []string `yaml:"tgzPaths"`
+	TXzPaths  []string `yaml:"txzPaths"`
+	LibPrefix string   `yaml:"libPrefix"`
+}
+
 type depsConfig struct {
 	Go  map[string]*depDetails
 	Bin map[string]*depDetails
@@ -72,7 +105,11 @@ func GetAllDeps() {
 func lookupConfig(dir string) string {
 	configFile := filepath.Join(dir, "Depfile")
 	if exists, _ := fsutil.FileExists(configFile); exists {
-		return configFile
+		configFilePath, err := filepath.Abs(configFile)
+		if err != nil {
+			panic(errors.Wrap(err, "failed to get absolute path of config file"))
+		}
+		return configFilePath
 	}
 
 	parent, err := filepath.Abs(filepath.Join(dir, ".."))
@@ -98,31 +135,7 @@ func init() {
 
 	currentDir = filepath.Dir(configFile)
 
-	configs := &struct {
-		Go map[string]struct {
-			ImportPath string `yaml:"importPath"`
-			Version    string `yaml:"version"`
-		} `yaml:"go"`
-		Bin map[string]struct {
-			Version    string            `yaml:"version"`
-			URL        string            `yaml:"url"`
-			Entrypoint string            `yaml:"entrypoint"`
-			SHA        map[string]string `yaml:"sha"`
-			ZipPaths   []string          `yaml:"zipPaths"`
-			TGzPaths   []string          `yaml:"tgzPaths"`
-			TXzPaths   []string          `yaml:"txzPaths"`
-		} `yaml:"bin"`
-		Lib map[string]struct {
-			Version   string   `yaml:"version"`
-			URL       string   `yaml:"url"`
-			OutputDir string   `yaml:"outputDir"`
-			SHA       string   `yaml:"sha"`
-			ZipPaths  []string `yaml:"zipPaths"`
-			TGzPaths  []string `yaml:"tgzPaths"`
-			TXzPaths  []string `yaml:"txzPaths"`
-			LibPrefix string   `yaml:"libPrefix"`
-		} `yaml:"lib"`
-	}{}
+	configs := &depFile{}
 
 	yamlFile, err := ioutil.ReadFile(configFile)
 	if err != nil {
@@ -133,7 +146,15 @@ func init() {
 		panic(errors.Wrapf(err, "failed to unmarshal %s", configFile))
 	}
 
-	for name, bin := range configs.Bin { //nolint:gocritic // TODO refactor
+	buildBinDep(configs.Bin)
+
+	buildLibDep(configs.Lib)
+
+	buildGoDep(configs.Go)
+}
+
+func buildBinDep(binConfigs map[string]binConfig) {
+	for name, bin := range binConfigs { //nolint:gocritic // TODO refactor
 		options := []Option{}
 
 		if len(bin.ZipPaths) != 0 {
@@ -160,8 +181,10 @@ func init() {
 		url := parseStringTemplate(bin.URL, bin.Version)
 		DefBinDep(name, url, bin.Version, sha, entrypoint, options...)
 	}
+}
 
-	for name, lib := range configs.Lib { //nolint:gocritic // TODO refactor
+func buildLibDep(libConfigs map[string]libConfig) {
+	for name, lib := range libConfigs { //nolint:gocritic // TODO refactor
 		options := []Option{}
 		if len(lib.ZipPaths) != 0 {
 			zipPaths := parseArrayTemplate(lib.ZipPaths, lib.Version)
@@ -185,8 +208,14 @@ func init() {
 
 		DefLibDep(name, url, lib.SHA, lib.OutputDir, options...)
 	}
+}
 
-	for name, goBin := range configs.Go {
-		DefGoDep(name, goBin.ImportPath, goBin.Version)
+func buildGoDep(goConfigs map[string]goConfig) {
+	for name, goBin := range goConfigs {
+		entrypoint := parseStringTemplate(goBin.Entrypoint, goBin.Version)
+		if goBin.Entrypoint == "" {
+			entrypoint = name
+		}
+		DefGoDep(name, goBin.ImportPath, goBin.Version, entrypoint)
 	}
 }

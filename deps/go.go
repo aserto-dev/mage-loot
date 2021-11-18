@@ -2,6 +2,7 @@ package deps
 
 import (
 	"fmt"
+	"path/filepath"
 	"sync"
 
 	"github.com/magefile/mage/sh"
@@ -10,7 +11,7 @@ import (
 
 // DefGoDep defines a go dependency that can be installed using
 // a command like `go install github.com/aserto-dev/foo@v1.2.3`
-func DefGoDep(name, importPath, version string) {
+func DefGoDep(name, importPath, version, entrypoint string) {
 	cmdRegisterMutex.Lock()
 	defer cmdRegisterMutex.Unlock()
 
@@ -18,11 +19,15 @@ func DefGoDep(name, importPath, version string) {
 		config.Go[name] = &depDetails{Once: &sync.Once{}}
 	}
 
+	binPath := goBinFilePath(name, version)
+
 	config.Go[name].Procure = func() {
 		config.Go[name].Once.Do(func() {
-			installGoBin(importPath, version)
+			installGoBin(binPath, importPath, version)
 		})
 	}
+
+	config.Go[name].Path = filepath.Join(binPath, entrypoint)
 }
 
 // GoDepOutput returns a command for running a go dependency.
@@ -39,7 +44,7 @@ func GoDepOutput(name string) func(...string) (string, error) {
 			def.Procure()
 		}
 
-		return sh.Output(name, args...)
+		return sh.Output(def.Path, args...)
 	}
 }
 
@@ -57,7 +62,7 @@ func GoDepOutputWith(name string) func(map[string]string, ...string) (string, er
 			def.Procure()
 		}
 
-		return sh.OutputWith(env, name, args...)
+		return sh.OutputWith(env, def.Path, args...)
 	}
 }
 
@@ -75,13 +80,19 @@ func GoDep(name string) func(...string) error {
 			def.Procure()
 		}
 
-		return sh.RunV(name, args...)
+		return sh.RunV(def.Path, args...)
 	}
 }
 
-func installGoBin(importPath, version string) {
-	err := sh.RunV("go", "install", fmt.Sprintf("%s@%s", importPath, version))
+func installGoBin(binPath, importPath, version string) {
+	env := make(map[string]string)
+	env["GOBIN"] = binPath
+	err := sh.RunWith(env, "go", "install", fmt.Sprintf("%s@%s", importPath, version))
 	if err != nil {
 		panic(errors.Wrap(err, "failed to install go dependency"))
 	}
+}
+
+func goBinFilePath(name, version string) string {
+	return filepath.Join(GoBinDir(), name+"-"+version)
 }
