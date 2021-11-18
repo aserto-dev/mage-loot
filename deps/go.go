@@ -84,6 +84,20 @@ func GoDep(name string) func(...string) error {
 	}
 }
 
+func GoBinPath(name string) string {
+	def := config.Go[name]
+
+	if def == nil {
+		panic(errors.Errorf("didn't find a go binary dependency named '%s'", name))
+	}
+
+	if !skipProcurement {
+		def.Procure()
+	}
+
+	return def.Path
+}
+
 func installGoBin(binPath, importPath, version string) {
 	env := make(map[string]string)
 	env["GOBIN"] = binPath
