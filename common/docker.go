@@ -2,7 +2,9 @@ package common
 
 import (
 	"bufio"
+	"fmt"
 	"os"
+	"runtime"
 	"strings"
 	"time"
 
@@ -56,10 +58,16 @@ func DockerImage(repositoryAndTag string, args ...string) error {
 	}
 	date := time.Now().UTC().Format(time.RFC3339)
 
+	platform := os.Getenv("BUILD_PLATFORM")
+	if platform == "" {
+		platform = fmt.Sprintf("%s/%s", runtime.GOOS, runtime.GOARCH)
+	}
+
 	UI.Normal().
 		WithStringValue("version", version).
 		WithStringValue("commit", commit).
 		WithStringValue("date", date).
+		WithStringValue("platform", platform).
 		Msgf("Building docker image.")
 
 	if repositoryAndTag == "" {
@@ -78,6 +86,7 @@ func DockerImage(repositoryAndTag string, args ...string) error {
 				"--build-arg", "COMMIT",
 				"--build-arg", "GO_VERSION",
 				"--build-arg", "VERSION",
+				"--platform", platform,
 			},
 				args...),
 			"-t", repositoryAndTag,
