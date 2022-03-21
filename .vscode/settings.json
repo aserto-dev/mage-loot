@@ -1,21 +1,19 @@
 {
   "cSpell.words": [
-    "Depfile",
-    "Depsfile",
-    "GOMODCACHE",
-    "Gomega",
-    "Msgf",
-    "Wrapf",
     "aserto",
     "clui",
     "cmds",
+    "Depfile",
     "deps",
+    "Depsfile",
     "executable's",
     "fpath",
     "franela",
     "fsutil",
     "gjson",
     "golangci",
+    "Gomega",
+    "GOMODCACHE",
     "gosec",
     "goveralls",
     "grpc",
@@ -28,6 +26,7 @@
     "magefiles",
     "mergo",
     "mkdir",
+    "Msgf",
     "msvs",
     "nolint",
     "objc",
@@ -36,8 +35,10 @@
     "protobuf",
     "protoc",
     "pseudomuto",
+    "psql",
     "shogo",
     "sver",
-    "tidwall"
+    "tidwall",
+    "Wrapf"
   ]
 }
