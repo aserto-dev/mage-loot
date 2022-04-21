@@ -1,6 +1,7 @@
 package buf
 
 import (
+	"bytes"
 	"io"
 	"os/exec"
 	"strings"
@@ -8,6 +9,7 @@ import (
 	"github.com/aserto-dev/mage-loot/deps"
 	"github.com/aserto-dev/mage-loot/fsutil"
 	"github.com/aserto-dev/mage-loot/testutil"
+	"github.com/pkg/errors"
 )
 
 // Generate proto artifacts
@@ -123,18 +125,31 @@ func Login() error {
 
 	args := []string{"registry", "login", "--username", bufUser, "--token-stdin"}
 
-	cmd := exec.Command(deps.GoBinPath("buf"), args...)
+	var out []byte
+	buffer := bytes.NewBuffer(out)
+
+	bufCMD := deps.GoBinPath("buf")
+	cmd := exec.Command(bufCMD, args...)
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		return err
 	}
 
-	go func() {
-		defer stdin.Close()
-		io.WriteString(stdin, bufToken)
-	}()
+	cmd.Stdout = buffer
+	cmd.Stderr = buffer
 
-	out, err := cmd.CombinedOutput()
+	err = cmd.Start()
+	if err != nil {
+		return errors.Wrap(err, "failed to start buf command")
+	}
+
+	defer stdin.Close()
+	_, err = io.WriteString(stdin, bufToken)
+	if err != nil {
+		return err
+	}
+
+	err = cmd.Wait()
 	if err != nil {
 		return err
 	}
@@ -142,7 +157,7 @@ func Login() error {
 	ui.Normal().
 		Msg(">>> executing buf " + strings.Join(args, " "))
 	ui.Normal().
-		Msg(string(out))
+		Msg(buffer.String())
 
 	return err
 }

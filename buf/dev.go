@@ -9,21 +9,28 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func GenerateDev(binFile string, protoDirs, deps []string) error {
+type workspace struct {
+	Version     string   `yaml:"version"`
+	Directories []string `yaml:"directories"`
+}
+
+func GenerateDev(binFile string, protoDirs, deps []string) (err error) {
 	cleanup, err := CreateDevWorkspace(protoDirs, deps)
 	if cleanup != nil {
-		defer cleanup()
+		defer func() {
+			err = cleanup()
+		}()
 	}
 	if err != nil {
-		return err
+		return
 	}
 
-	if err := Lint(); err != nil {
-		return err
+	if err = Lint(); err != nil {
+		return
 	}
 
-	if err := Build(binFile); err != nil {
-		return err
+	if err = Build(binFile); err != nil {
+		return
 	}
 
 	if len(protoDirs) == 0 {
@@ -31,7 +38,7 @@ func GenerateDev(binFile string, protoDirs, deps []string) error {
 	}
 
 	for _, d := range protoDirs {
-		err := Run(AddArg("generate"), AddArg("--path"), AddArg(d))
+		err = Run(AddArg("generate"), AddArg("--path"), AddArg(d))
 		if err != nil {
 			return err
 		}
@@ -91,10 +98,7 @@ func CreateDevWorkspace(protoDirs, dependencies []string) (func() error, error) 
 		}
 	}
 
-	workspaces := struct {
-		Version     string   `yaml:"version"`
-		Directories []string `yaml:"directories"`
-	}{
+	workspaces := workspace{
 		"v1",
 		[]string{},
 	}
