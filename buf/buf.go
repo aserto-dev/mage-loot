@@ -3,16 +3,21 @@ package buf
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/aserto-dev/clui"
 	"github.com/aserto-dev/mage-loot/deps"
+	"github.com/aserto-dev/mage-loot/testutil"
 	"github.com/pkg/errors"
 )
 
 type bufArgs struct {
-	args []string
+	withLogin bool
+	args      []string
 }
 
 type tagResult struct {
@@ -34,6 +39,11 @@ var (
 
 // Run runs the protoc CLI
 func Run(args ...Arg) error {
+	return RunWithEnv(nil, args...)
+}
+
+// Run runs the protoc CLI with the given environment variables.
+func RunWithEnv(env map[string]string, args ...Arg) (err error) {
 	bufArgs := &bufArgs{}
 
 	for _, arg := range args {
@@ -47,13 +57,64 @@ func Run(args ...Arg) error {
 	ui.Normal().
 		Msg(">>> executing buf " + strings.Join(bufArgs.args, " "))
 
-	return deps.GoDep("buf")(finalArgs...)
+	if bufArgs.withLogin {
+		netrcFile, err := getLoginFile()
+		if err != nil {
+			return err
+		}
+
+		if env == nil {
+			env = make(map[string]string)
+		}
+
+		env["NETRC"] = netrcFile
+		defer func() {
+			if os.Getenv("NETRC") != "" {
+				return
+			}
+			err = os.Remove(netrcFile)
+		}()
+	}
+
+	return deps.GoDepWithEnv(env, "buf")(finalArgs...)
+}
+
+func getLoginFile() (string, error) {
+	if os.Getenv("NETRC") != "" {
+		return os.Getenv("NETRC"), nil
+	}
+
+	fmt.Println("Using vault to get buf credentials")
+
+	file, err := ioutil.TempFile(filepath.Join(deps.ExtTmpDir()), ".netrc*")
+	if err != nil {
+		return "", err
+	}
+
+	err = file.Chmod(0700)
+	if err != nil {
+		return "", err
+	}
+
+	bufToken := testutil.VaultValue("buf.build", "ASERTO_BUF_TOKEN")
+	_, err = file.WriteString(fmt.Sprintf("machine buf.build\npassword %s", bufToken))
+	if err != nil {
+		return "", err
+	}
+
+	return file.Name(), nil
 }
 
 // AddArg adds a simple argument.
 func AddArg(arg string) func(*bufArgs) {
 	return func(o *bufArgs) {
 		o.args = append(o.args, arg)
+	}
+}
+
+func WithLogin() func(*bufArgs) {
+	return func(o *bufArgs) {
+		o.withLogin = true
 	}
 }
 
@@ -109,4 +170,24 @@ func GetLatestTag(repository string) (Tag, error) {
 		}
 	}
 	return latestTag, nil
+}
+
+func getBufPath(protoPluginPaths []string) (string, error) {
+	path := os.Getenv("PATH")
+	pathSeparator := string(os.PathListSeparator)
+
+	for _, p := range protoPluginPaths {
+		pluginFolderPath := p
+		fileInfo, err := os.Stat(pluginFolderPath)
+		if err != nil {
+			return "", err
+		}
+
+		if !fileInfo.IsDir() {
+			pluginFolderPath = filepath.Dir(pluginFolderPath)
+		}
+
+		path = path + pathSeparator + pluginFolderPath
+	}
+	return path, nil
 }

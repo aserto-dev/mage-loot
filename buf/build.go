@@ -1,22 +1,11 @@
 package buf
 
 import (
-	"bytes"
-	"io"
-	"os/exec"
-	"strings"
-
-	"github.com/aserto-dev/mage-loot/deps"
 	"github.com/aserto-dev/mage-loot/fsutil"
-	"github.com/aserto-dev/mage-loot/testutil"
-	"github.com/pkg/errors"
 )
 
 // Generate proto artifacts
-func Generate(binFile string) error {
-	if err := Login(); err != nil {
-		return err
-	}
+func Generate(binFile string, protoPluginPaths []string) error {
 	if err := Lint(); err != nil {
 		return err
 	}
@@ -24,7 +13,16 @@ func Generate(binFile string) error {
 		return err
 	}
 
-	return Run(
+	path, err := getBufPath(protoPluginPaths)
+	if err != nil {
+		return err
+	}
+
+	return RunWithEnv(
+		map[string]string{
+			"PATH": path,
+		},
+		WithLogin(),
 		AddArg("generate"),
 	)
 }
@@ -117,47 +115,4 @@ func ModUpdate(dirs ...string) error {
 	}
 
 	return nil
-}
-
-func Login() error {
-	bufToken := testutil.VaultValue("buf.build", "ASERTO_BUF_TOKEN")
-	bufUser := testutil.VaultValue("buf.build", "ASERTO_BUF_USER")
-
-	args := []string{"registry", "login", "--username", bufUser, "--token-stdin"}
-
-	var out []byte
-	buffer := bytes.NewBuffer(out)
-
-	bufCMD := deps.GoBinPath("buf")
-	cmd := exec.Command(bufCMD, args...)
-	stdin, err := cmd.StdinPipe()
-	if err != nil {
-		return err
-	}
-
-	cmd.Stdout = buffer
-	cmd.Stderr = buffer
-
-	err = cmd.Start()
-	if err != nil {
-		return errors.Wrap(err, "failed to start buf command")
-	}
-
-	defer stdin.Close()
-	_, err = io.WriteString(stdin, bufToken)
-	if err != nil {
-		return err
-	}
-
-	err = cmd.Wait()
-	if err != nil {
-		return err
-	}
-
-	ui.Normal().
-		Msg(">>> executing buf " + strings.Join(args, " "))
-	ui.Normal().
-		Msg(buffer.String())
-
-	return err
 }
