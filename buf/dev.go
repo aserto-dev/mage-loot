@@ -14,7 +14,7 @@ type workspace struct {
 	Directories []string `yaml:"directories"`
 }
 
-func GenerateDev(binFile string, protoDirs, deps []string) (err error) {
+func GenerateDev(binFile string, protoDirs, deps, protoPluginPaths []string) (err error) {
 	cleanup, err := CreateDevWorkspace(protoDirs, deps)
 	if cleanup != nil {
 		defer func() {
@@ -33,12 +33,27 @@ func GenerateDev(binFile string, protoDirs, deps []string) (err error) {
 		return
 	}
 
+	path, err := getBufPath(protoPluginPaths)
+	if err != nil {
+		return err
+	}
+
 	if len(protoDirs) == 0 {
-		return Run(AddArg("generate"))
+		return RunWithEnv(
+			map[string]string{
+				"PATH": path,
+			},
+			AddArg("generate"))
 	}
 
 	for _, d := range protoDirs {
-		err = Run(AddArg("generate"), AddArg("--path"), AddArg(d))
+		err = RunWithEnv(
+			map[string]string{
+				"PATH": path,
+			},
+			AddArg("generate"),
+			AddArg("--path"),
+			AddArg(d))
 		if err != nil {
 			return err
 		}

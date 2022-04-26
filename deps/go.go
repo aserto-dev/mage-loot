@@ -84,6 +84,24 @@ func GoDep(name string) func(...string) error {
 	}
 }
 
+// GoDepWithEnv returns a command for running a go dependency.
+// It accepts an env map for the new process. Its output is sent to stdout.
+func GoDepWithEnv(env map[string]string, name string) func(...string) error {
+	def := config.Go[name]
+
+	if def == nil {
+		panic(errors.Errorf("didn't find a binary dependency named '%s'", name))
+	}
+
+	return func(args ...string) error {
+		if !skipProcurement {
+			def.Procure()
+		}
+
+		return sh.RunWithV(env, def.Path, args...)
+	}
+}
+
 func GoBinPath(name string) string {
 	def := config.Go[name]
 
