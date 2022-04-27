@@ -69,6 +69,17 @@ func LintBin(binFile string, bufConfigs ...string) error {
 	return nil
 }
 
+func BuildDir(dir, binFile string) error {
+	fsutil.EnsureDir("bin")
+
+	return Run(
+		AddArg("build"),
+		AddArg("--output"),
+		AddArg(binFile),
+		AddArg(dir),
+	)
+}
+
 func Build(binFile string, bufConfigs ...string) error {
 	fsutil.EnsureDir("bin")
 
