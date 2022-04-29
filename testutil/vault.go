@@ -10,7 +10,6 @@ import (
 )
 
 var (
-	vault      = deps.BinDepOut("vault")
 	vaultCache *bigcache.BigCache
 )
 
@@ -23,6 +22,7 @@ func init() {
 }
 
 func VaultTokenRefresh() {
+	vault := deps.BinDepOut("vault")
 	_, err := vault("token", "renew")
 	if err != nil {
 		panic(err)
@@ -87,6 +87,7 @@ func VaultValue(params ...interface{}) string {
 		panic(err)
 	}
 
+	vault := deps.BinDepOut("vault")
 	out, err := vault("kv", "get", "--format=json", "kv/"+secret)
 
 	if err != nil {
