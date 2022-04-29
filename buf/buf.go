@@ -86,6 +86,11 @@ func getLoginFile() (string, error) {
 
 	fmt.Println("Using vault to get buf credentials")
 
+	err := os.MkdirAll(deps.ExtTmpDir(), 0700)
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to create tmp dir")
+	}
+
 	file, err := ioutil.TempFile(filepath.Join(deps.ExtTmpDir()), ".netrc*")
 	if err != nil {
 		return "", err
