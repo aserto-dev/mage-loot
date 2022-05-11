@@ -2,6 +2,7 @@ package deps
 
 import (
 	"os"
+	"path"
 	"path/filepath"
 	"sync"
 
@@ -26,12 +27,12 @@ func DefLibDep(name, url, sha, outputDir string, options ...Option) {
 				o(&ops)
 			}
 
-			if len(ops.zipPaths) != 0 {
+			if len(ops.zipPaths) != 0 && path.Ext(url) == zipExt {
 				downloadZippedLib(name, url, sha, ops.libPrefix, outputDir, ops.zipPaths)
 				return
 			}
 
-			if len(ops.tgzPaths) != 0 {
+			if len(ops.tgzPaths) != 0 && (path.Ext(url) == tgzExt || path.Ext(url) == gzExt) {
 				downloadTgzLib(name, url, sha, ops.libPrefix, outputDir, ops.tgzPaths)
 				return
 			}

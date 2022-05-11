@@ -3,12 +3,21 @@ package deps
 import (
 	"io"
 	"os"
+	"path"
 	"path/filepath"
 	"sync"
 
 	"github.com/aserto-dev/mage-loot/fsutil"
 	"github.com/magefile/mage/sh"
 	"github.com/pkg/errors"
+)
+
+const (
+	zipExt = ".zip"
+	tgzExt = ".tgz"
+	gzExt  = ".gz"
+	txzExt = ".txz"
+	xzExt  = ".xz"
 )
 
 // DefBinDep makes sure a dependency is downloaded and makes it available as
@@ -44,17 +53,17 @@ func DefBinDep(name, url, version, sha, entrypoint string, options ...Option) {
 		}
 
 		config.Bin[name].Once.Do(func() {
-			if len(ops.zipPaths) != 0 {
+			if len(ops.zipPaths) != 0 && path.Ext(url) == zipExt {
 				downloadZippedBin(name, url, version, sha, ops.zipPaths)
 				return
 			}
 
-			if len(ops.tgzPaths) != 0 {
+			if len(ops.tgzPaths) != 0 && (path.Ext(url) == tgzExt || path.Ext(url) == gzExt) {
 				downloadTgzBin(name, url, version, sha, ops.tgzPaths)
 				return
 			}
 
-			if len(ops.txzPaths) != 0 {
+			if len(ops.txzPaths) != 0 && (path.Ext(url) == txzExt || path.Ext(url) == xzExt) {
 				downloadTxzBin(name, url, version, sha, ops.txzPaths)
 				return
 			}
@@ -252,9 +261,9 @@ func binFilePath(name, version string) string {
 	return filepath.Join(BinDir(), name+"-"+version)
 }
 
-func makeExe(path string) {
-	err := os.Chmod(path, 0700)
+func makeExe(exePath string) {
+	err := os.Chmod(exePath, 0700)
 	if err != nil {
-		panic(errors.Wrapf(err, "failed to chmod file '%s'", path))
+		panic(errors.Wrapf(err, "failed to chmod file '%s'", exePath))
 	}
 }
