@@ -36,7 +36,7 @@ func RunDir(dir string, args ...Arg) error {
 
 // Run mage on the specified directory with the given args.
 // the output of the mage command is printed to stdout and the error message to stderr.
-func RunDirs(dir string, workDir string, args ...Arg) error {
+func RunDirs(dir, workDir string, args ...Arg) error {
 	return mageRun(dir, workDir, args...)
 }
 
@@ -47,7 +47,7 @@ func Run(args ...Arg) error {
 	return mageRun(dir, dir, args...)
 }
 
-func mageRun(mageDir string, workDir string, args ...Arg) error {
+func mageRun(mageDir, workDir string, args ...Arg) error {
 	mageArgs := &mageArgs{}
 
 	for _, arg := range args {
