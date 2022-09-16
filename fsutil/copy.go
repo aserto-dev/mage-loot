@@ -1,7 +1,6 @@
 package fsutil
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -31,7 +30,7 @@ func CopyDir(src, dest string) error {
 		}
 	}
 
-	files, err := ioutil.ReadDir(src)
+	files, err := os.ReadDir(src)
 	if err != nil {
 		return errors.Wrapf(err, "could not read source directory: %s ", src)
 	}
@@ -50,14 +49,16 @@ func CopyDir(src, dest string) error {
 
 		if !f.IsDir() {
 			sourceFile := filepath.Join(src, f.Name())
-			content, err := ioutil.ReadFile(sourceFile)
+			content, err := os.ReadFile(sourceFile)
 			if err != nil {
 				return errors.Wrapf(err, "could not read source file %s", sourceFile)
 
 			}
 
+			fsInfo, _ := os.Stat(sourceFile)
+
 			destFile := filepath.Join(dest, f.Name())
-			err = ioutil.WriteFile(destFile, content, f.Mode())
+			err = os.WriteFile(destFile, content, fsInfo.Mode())
 			if err != nil {
 				return errors.Wrapf(err, "could not write to destination file %s", destFile)
 

@@ -3,7 +3,6 @@ package buf
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -91,7 +90,7 @@ func getLoginFile() (string, error) {
 		return "", errors.Wrapf(err, "failed to create tmp dir")
 	}
 
-	file, err := ioutil.TempFile(filepath.Join(deps.ExtTmpDir()), ".netrc*")
+	file, err := os.Create(filepath.Join(deps.ExtTmpDir(), ".netrc*"))
 	if err != nil {
 		return "", err
 	}

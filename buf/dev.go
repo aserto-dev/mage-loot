@@ -1,7 +1,6 @@
 package buf
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -122,7 +121,7 @@ func CreateDevWorkspace(protoDirs, dependencies []string) (func() error, error) 
 	if workspaceFileExists {
 		ui.Note().Msg("Loading buf.work.yaml")
 
-		workspaceContents, err := ioutil.ReadFile("buf.work.yaml.orig")
+		workspaceContents, err := os.ReadFile("buf.work.yaml.orig")
 		if err != nil {
 			return cleanup, err
 		}
