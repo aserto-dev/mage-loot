@@ -11,7 +11,7 @@ require (
 	github.com/onsi/gomega v1.19.0
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.11.0
-	github.com/tidwall/gjson v1.14.0
+	github.com/tidwall/gjson v1.14.3
 	github.com/ulikunitz/xz v0.5.10
 	github.com/zricethezav/gitleaks/v8 v8.3.0
 	gopkg.in/yaml.v2 v2.4.0
