@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/aserto-dev/mage-loot/fsutil"
-	"gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v2"
 )
 
 type workspace struct {
