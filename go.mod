@@ -7,13 +7,14 @@ require (
 	github.com/allegro/bigcache/v3 v3.0.2
 	github.com/aserto-dev/clui v0.8.1
 	github.com/docker/docker v20.10.21+incompatible
+	github.com/docker/go-connections v0.4.0
 	github.com/go-test/deep v1.0.8
 	github.com/imdario/mergo v0.3.13
 	github.com/magefile/mage v1.14.0
 	github.com/onsi/gomega v1.20.2
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.13.0
-	github.com/tidwall/gjson v1.14.3
+	github.com/tidwall/gjson v1.14.4
 	github.com/ulikunitz/xz v0.5.10
 	github.com/zricethezav/gitleaks/v8 v8.3.0
 	gopkg.in/yaml.v2 v2.4.0
@@ -22,7 +23,6 @@ require (
 require (
 	github.com/Microsoft/go-winio v0.6.0 // indirect
 	github.com/docker/distribution v2.8.1+incompatible // indirect
-	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
