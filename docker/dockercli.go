@@ -39,7 +39,10 @@ func (cli *dockerCLI) startContainer(ctx context.Context, containerName string) 
 	if err != nil {
 		return errors.Wrapf(err, "failed to pull image [%s]", image)
 	}
-	io.Copy(cli.ui.Output(), ioReader)
+	_, err = io.Copy(cli.ui.Output(), ioReader)
+	if err != nil {
+		return err
+	}
 
 	defer ioReader.Close()
 

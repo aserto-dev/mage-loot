@@ -7,6 +7,7 @@ import (
 
 	"github.com/aserto-dev/clui"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/go-connections/nat"
 )
 
 var (
@@ -15,9 +16,16 @@ var (
 
 type Arg func(*dockerArgs)
 
+type PublishedPort struct {
+	ContainerPort string
+	HostIP        string
+	HostPort      string
+}
+
 type dockerArgs struct {
-	envVars []string
-	capAdds []string
+	envVars      []string
+	capAdds      []string
+	publishPorts []PublishedPort
 }
 
 func Run(image string, args ...Arg) error {
@@ -31,11 +39,13 @@ func Run(image string, args ...Arg) error {
 
 	cfg := &config{
 		containerConfig: &container.Config{
-			Image: image,
-			Env:   dargs.envVars,
+			Image:        image,
+			Env:          dargs.envVars,
+			ExposedPorts: publishedPortToPortSet(dargs.publishPorts),
 		},
 		containerHostConfig: &container.HostConfig{
-			CapAdd: dargs.capAdds,
+			CapAdd:       dargs.capAdds,
+			PortBindings: publishedPortToPortMap(dargs.publishPorts),
 		},
 	}
 
@@ -62,6 +72,33 @@ func Run(image string, args ...Arg) error {
 
 }
 
+func publishedPortToPortMap(publishedPorts []PublishedPort) nat.PortMap {
+	result := make(nat.PortMap)
+
+	for _, publishedPort := range publishedPorts {
+		natContainerPort := nat.Port(publishedPort.ContainerPort)
+		hostIP := publishedPort.HostIP
+		if hostIP == "" {
+			hostIP = "127.0.0.1"
+		}
+		result[natContainerPort] = append(result[natContainerPort], nat.PortBinding{
+			HostIP:   hostIP,
+			HostPort: publishedPort.HostPort,
+		})
+	}
+
+	return result
+}
+
+func publishedPortToPortSet(publishedPorts []PublishedPort) nat.PortSet {
+	result := make(nat.PortSet)
+
+	for _, publishedPort := range publishedPorts {
+		result[nat.Port(publishedPort.ContainerPort)] = struct{}{}
+	}
+	return result
+}
+
 func containerNameFromImage(image string) string {
 	image = strings.ReplaceAll(image, ":", "_")
 	return fmt.Sprintf("mage-loot-%s", image)
@@ -73,8 +110,14 @@ func WithEnvVar(key, value string) func(*dockerArgs) {
 	}
 }
 
-func WithCappAdd(cap string) func(*dockerArgs) {
+func WithCappAdd(capStr string) func(*dockerArgs) {
 	return func(o *dockerArgs) {
-		o.envVars = append(o.capAdds, cap)
+		o.capAdds = append(o.capAdds, capStr)
+	}
+}
+
+func WithPublishedPort(publishedPort PublishedPort) func(*dockerArgs) {
+	return func(o *dockerArgs) {
+		o.publishPorts = append(o.publishPorts, publishedPort)
 	}
 }
