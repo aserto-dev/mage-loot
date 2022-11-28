@@ -10,7 +10,7 @@ import (
 	"github.com/aserto-dev/clui"
 	"github.com/aserto-dev/mage-loot/fsutil"
 	"github.com/pkg/errors"
-	"gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v2"
 )
 
 type depFile struct {

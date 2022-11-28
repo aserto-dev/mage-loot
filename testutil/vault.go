@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/allegro/bigcache/v3"
+	bigcache "github.com/allegro/bigcache/v3"
 	"github.com/aserto-dev/mage-loot/deps"
 	"github.com/tidwall/gjson"
 )
