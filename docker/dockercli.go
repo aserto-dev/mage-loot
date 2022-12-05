@@ -2,6 +2,8 @@ package docker
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io"
 
@@ -35,7 +37,17 @@ func newCLI(cfg *config, ui *clui.UI) (*dockerCLI, error) {
 func (cli *dockerCLI) startContainer(ctx context.Context, containerName string) error {
 	image := cli.cfg.containerConfig.Image
 	cli.ui.Note().Msgf("checking image %s", image)
-	ioReader, err := cli.dockerClient.ImagePull(ctx, image, types.ImagePullOptions{})
+	imagePullOptions := types.ImagePullOptions{}
+	if cli.cfg.credentials != nil {
+		encodedJSON, err := json.Marshal(cli.cfg.credentials)
+		if err != nil {
+			return err
+		}
+		authStr := base64.URLEncoding.EncodeToString(encodedJSON)
+		imagePullOptions.RegistryAuth = authStr
+	}
+
+	ioReader, err := cli.dockerClient.ImagePull(ctx, image, imagePullOptions)
 	if err != nil {
 		return errors.Wrapf(err, "failed to pull image [%s]", image)
 	}
