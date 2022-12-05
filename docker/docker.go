@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/aserto-dev/clui"
+	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/go-connections/nat"
 )
@@ -23,9 +24,11 @@ type PublishedPort struct {
 }
 
 type dockerArgs struct {
-	envVars      []string
-	capAdds      []string
-	publishPorts []PublishedPort
+	envVars       []string
+	capAdds       []string
+	publishPorts  []PublishedPort
+	registryCreds *types.AuthConfig
+	entrypoint    []string
 }
 
 func Run(image string, args ...Arg) error {
@@ -42,11 +45,13 @@ func Run(image string, args ...Arg) error {
 			Image:        image,
 			Env:          dargs.envVars,
 			ExposedPorts: publishedPortToPortSet(dargs.publishPorts),
+			Entrypoint:   dargs.entrypoint,
 		},
 		containerHostConfig: &container.HostConfig{
 			CapAdd:       dargs.capAdds,
 			PortBindings: publishedPortToPortMap(dargs.publishPorts),
 		},
+		credentials: dargs.registryCreds,
 	}
 
 	containerName := containerNameFromImage(image)
@@ -101,6 +106,7 @@ func publishedPortToPortSet(publishedPorts []PublishedPort) nat.PortSet {
 
 func containerNameFromImage(image string) string {
 	image = strings.ReplaceAll(image, ":", "_")
+	image = strings.ReplaceAll(image, "/", "_")
 	return fmt.Sprintf("mage-loot-%s", image)
 }
 
@@ -119,5 +125,17 @@ func WithCappAdd(capStr string) func(*dockerArgs) {
 func WithPublishedPort(publishedPort PublishedPort) func(*dockerArgs) {
 	return func(o *dockerArgs) {
 		o.publishPorts = append(o.publishPorts, publishedPort)
+	}
+}
+
+func WithCredentials(credentials *types.AuthConfig) func(*dockerArgs) {
+	return func(o *dockerArgs) {
+		o.registryCreds = credentials
+	}
+}
+
+func WithEntrypoint(entrypoint []string) func(*dockerArgs) {
+	return func(o *dockerArgs) {
+		o.entrypoint = entrypoint
 	}
 }
