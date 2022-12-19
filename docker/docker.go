@@ -77,6 +77,21 @@ func Run(image string, args ...Arg) error {
 
 }
 
+func GetContainer(containerName string) (*types.Container, error) {
+	ctx := context.Background()
+
+	cfg := &config{}
+
+	containerName = containerNameFromImage(containerName)
+
+	cli, err := newCLI(cfg, ui)
+	if err != nil {
+		return nil, err
+	}
+
+	return cli.getContainer(ctx, containerName)
+}
+
 func publishedPortToPortMap(publishedPorts []PublishedPort) nat.PortMap {
 	result := make(nat.PortMap)
 
