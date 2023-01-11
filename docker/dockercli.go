@@ -10,8 +10,10 @@ import (
 	"github.com/aserto-dev/clui"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
+	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
 )
 
 type dockerCLI struct {
@@ -59,7 +61,24 @@ func (cli *dockerCLI) startContainer(ctx context.Context, containerName string) 
 	defer ioReader.Close()
 
 	ui.Note().Msg("creating docker container")
-	resp, err := cli.dockerClient.ContainerCreate(ctx, cli.cfg.containerConfig, cli.cfg.containerHostConfig, nil, nil, containerName)
+
+	var networkConfig *network.NetworkingConfig
+	if cli.cfg.networkName != "" {
+		endpoints := make(map[string]*network.EndpointSettings, 1)
+		endpoints[cli.cfg.networkName] = &network.EndpointSettings{}
+		networkConfig = &network.NetworkingConfig{
+			EndpointsConfig: endpoints,
+		}
+	}
+
+	resp, err := cli.dockerClient.ContainerCreate(
+		ctx,
+		cli.cfg.containerConfig,
+		cli.cfg.containerHostConfig,
+		networkConfig,
+		nil,
+		containerName,
+	)
 	if err != nil {
 		return errors.Wrap(err, "failed to create container")
 	}
@@ -110,4 +129,26 @@ func (cli *dockerCLI) getContainer(ctx context.Context, containerName string) (*
 		return nil, nil
 	}
 	return &containerTypes[0], nil
+}
+
+func (cli *dockerCLI) createNetwork(ctx context.Context, name string) (string, error) {
+	networks, err := cli.dockerClient.NetworkList(ctx,
+		types.NetworkListOptions{Filters: filters.NewArgs(filters.KeyValuePair{Key: "name", Value: name})})
+	if err != nil {
+		return "", errors.Wrap(err, "failed to read networks")
+	}
+
+	for i := range networks {
+		n := networks[i]
+		err := cli.dockerClient.NetworkRemove(ctx, n.ID)
+		if err != nil {
+			log.Error().Err(err)
+		}
+	}
+
+	net, err := cli.dockerClient.NetworkCreate(ctx, name, types.NetworkCreate{
+		CheckDuplicate: false,
+		Driver:         "bridge",
+	})
+	return net.ID, err
 }

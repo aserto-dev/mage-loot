@@ -29,6 +29,7 @@ type dockerArgs struct {
 	publishPorts  []PublishedPort
 	registryCreds *types.AuthConfig
 	entrypoint    []string
+	networkName   string
 }
 
 func Run(image string, args ...Arg) error {
@@ -52,9 +53,10 @@ func Run(image string, args ...Arg) error {
 			PortBindings: publishedPortToPortMap(dargs.publishPorts),
 		},
 		credentials: dargs.registryCreds,
+		networkName: dargs.networkName,
 	}
 
-	containerName := containerNameFromImage(image)
+	containerName := sanitizeName(image)
 
 	cli, err := newCLI(cfg, ui)
 	if err != nil {
@@ -82,7 +84,7 @@ func GetContainer(containerName string) (*types.Container, error) {
 
 	cfg := &config{}
 
-	containerName = containerNameFromImage(containerName)
+	containerName = sanitizeName(containerName)
 
 	cli, err := newCLI(cfg, ui)
 	if err != nil {
@@ -90,6 +92,20 @@ func GetContainer(containerName string) (*types.Container, error) {
 	}
 
 	return cli.getContainer(ctx, containerName)
+}
+
+func CreateNetwork(name string) (string, error) {
+	ctx := context.Background()
+
+	cfg := &config{}
+
+	cli, err := newCLI(cfg, ui)
+	if err != nil {
+		return "", err
+	}
+
+	nwName := sanitizeName(name)
+	return cli.createNetwork(ctx, nwName)
 }
 
 func publishedPortToPortMap(publishedPorts []PublishedPort) nat.PortMap {
@@ -119,10 +135,10 @@ func publishedPortToPortSet(publishedPorts []PublishedPort) nat.PortSet {
 	return result
 }
 
-func containerNameFromImage(image string) string {
-	image = strings.ReplaceAll(image, ":", "_")
-	image = strings.ReplaceAll(image, "/", "_")
-	return fmt.Sprintf("mage-loot-%s", image)
+func sanitizeName(name string) string {
+	name = strings.ReplaceAll(name, ":", "_")
+	name = strings.ReplaceAll(name, "/", "_")
+	return fmt.Sprintf("mage-loot-%s", name)
 }
 
 func WithEnvVar(key, value string) func(*dockerArgs) {
@@ -152,5 +168,11 @@ func WithCredentials(credentials *types.AuthConfig) func(*dockerArgs) {
 func WithEntrypoint(entrypoint []string) func(*dockerArgs) {
 	return func(o *dockerArgs) {
 		o.entrypoint = entrypoint
+	}
+}
+
+func WithNetwork(networkName string) func(*dockerArgs) {
+	return func(o *dockerArgs) {
+		o.networkName = networkName
 	}
 }
