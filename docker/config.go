@@ -9,4 +9,5 @@ type config struct {
 	containerConfig     *container.Config
 	containerHostConfig *container.HostConfig
 	credentials         *types.AuthConfig
+	networkName         string
 }
