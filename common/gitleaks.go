@@ -11,7 +11,7 @@ import (
 	"github.com/zricethezav/gitleaks/v8/git"
 )
 
-//nolint Gitleaks rules
+// nolint Gitleaks rules
 var GitleakConfig = []byte(`title = "gitleaks config"
 
 # Gitleaks rules are defined by regular expressions and entropy ranges.
@@ -192,7 +192,7 @@ regex = '''(p8e-)(?i)[a-z0-9]{32}'''
 [[rules]]
 id = "alibaba-access-key-id"
 description = "Alibaba AccessKey ID"
-regex = '''(LTAI)(?i)[a-z0-9]{20}'''
+regex = '''\W(LTAI)(?i)[a-z0-9]{20}\W'''
 
 [[rules]]
 id = "alibaba-secret-key"
