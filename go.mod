@@ -6,12 +6,14 @@ require (
 	github.com/OneOfOne/xxhash v1.2.8
 	github.com/allegro/bigcache/v3 v3.0.2
 	github.com/aserto-dev/clui v0.8.1
-	github.com/docker/docker v20.10.21+incompatible
+	github.com/docker/docker v23.0.1+incompatible
+	github.com/docker/go-connections v0.4.0
 	github.com/go-test/deep v1.0.8
 	github.com/imdario/mergo v0.3.13
 	github.com/magefile/mage v1.14.0
 	github.com/onsi/gomega v1.20.2
 	github.com/pkg/errors v0.9.1
+	github.com/rs/zerolog v1.25.0
 	github.com/spf13/viper v1.13.0
 	github.com/tidwall/gjson v1.14.3
 	github.com/ulikunitz/xz v0.5.10
@@ -22,7 +24,6 @@ require (
 require (
 	github.com/Microsoft/go-winio v0.6.0 // indirect
 	github.com/docker/distribution v2.8.1+incompatible // indirect
-	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
@@ -44,8 +45,6 @@ require (
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.5 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
-	github.com/rs/zerolog v1.25.0 // indirect
-	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/spf13/afero v1.8.2 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
