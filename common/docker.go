@@ -87,6 +87,7 @@ func DockerImage(repositoryAndTag string, args ...string) error {
 				"--build-arg", "COMMIT",
 				"--build-arg", "GO_VERSION",
 				"--build-arg", "VERSION",
+				"--build-arg", "DATE",
 				"--platform", platform,
 			},
 				args...),
