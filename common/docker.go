@@ -77,6 +77,7 @@ func DockerImage(repositoryAndTag string, args ...string) error {
 	return sh.RunWithV(map[string]string{
 		"COMMIT":  commit,
 		"VERSION": version,
+		"DATE":    date,
 	},
 		"docker",
 		append(
