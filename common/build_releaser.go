@@ -10,7 +10,7 @@ func BuildAllReleaser(args ...string) error {
 	if err != nil {
 		return err
 	}
-	return deps.GoDep("goreleaser")(append([]string{"build", "--rm-dist"}, args...)...)
+	return deps.GoDep("goreleaser")(append([]string{"build", "--clean"}, args...)...)
 }
 
 // BuildReleaser builds the project.
@@ -20,7 +20,7 @@ func BuildReleaser(args ...string) error {
 		return err
 	}
 
-	return deps.GoDep("goreleaser")(append([]string{"build", "--rm-dist", "--snapshot", "--single-target"}, args...)...)
+	return deps.GoDep("goreleaser")(append([]string{"build", "--clean", "--snapshot", "--single-target"}, args...)...)
 }
 
 // Release releases the project.
