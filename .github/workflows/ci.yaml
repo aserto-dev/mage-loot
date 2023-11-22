@@ -12,7 +12,7 @@ on:
       - main
 env:
   VAULT_ADDR: https://vault.eng.aserto.com/
-  GO_VERSION: "1.17"
+  GO_VERSION: "1.19"
 
 jobs:
   test:

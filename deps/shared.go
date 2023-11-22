@@ -1,6 +1,7 @@
 package deps
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"io"
@@ -31,11 +32,11 @@ type depOptions struct {
 }
 
 // Option is a setting that changes the behavior
-// of downloading and configuring a binary or a library
+// of downloading and configuring a binary or a library.
 type Option func(*depOptions)
 
 // WithZipPaths tells us the binary or lib lives inside
-// a zip archive
+// a zip archive.
 func WithZipPaths(paths ...string) Option {
 	return func(o *depOptions) {
 		o.zipPaths = paths
@@ -43,7 +44,7 @@ func WithZipPaths(paths ...string) Option {
 }
 
 // WithTGzPaths tells us the binary or lib lives inside
-// a tarred and gzipped archive
+// a tarred and gzipped archive.
 func WithTGzPaths(paths ...string) Option {
 	return func(o *depOptions) {
 		o.tgzPaths = paths
@@ -51,7 +52,7 @@ func WithTGzPaths(paths ...string) Option {
 }
 
 // WithTXzPaths tells us the binary or lib lives inside
-// a tarred and xz utility compressed archive
+// a tarred and xz utility compressed archive.
 func WithTXzPaths(paths ...string) Option {
 	return func(o *depOptions) {
 		o.txzPaths = paths
@@ -67,7 +68,7 @@ func WithLibPrefix(prefix string) Option {
 	}
 }
 
-// downloadFile will download a url to a local file
+// downloadFile will download a url to a local file.
 func downloadFile(filePath, url string) error {
 	dir := filepath.Dir(filePath)
 	err := os.MkdirAll(dir, 0700)
@@ -75,7 +76,11 @@ func downloadFile(filePath, url string) error {
 		panic(errors.Wrapf(err, "failed to create dir '%s'", dir))
 	}
 
-	resp, err := http.Get(url) // nolint:gosec // urls come from a config file and are verified against a SHA256 signature
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, http.NoBody)
+	if err != nil {
+		return err
+	}
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		panic(errors.Wrap(err, "http get request failed"))
 	}
@@ -116,17 +121,17 @@ func BinDir() string {
 	return filepath.Join(currentDir, externalDir, binDir)
 }
 
-// LibDir returns the absolute path to the lib dir
+// LibDir returns the absolute path to the lib dir.
 func LibDir() string {
 	return filepath.Join(currentDir, externalDir, libDir)
 }
 
-// LibDir returns the absolute path to the ext tmp dir
+// LibDir returns the absolute path to the ext tmp dir.
 func ExtTmpDir() string {
 	return filepath.Join(currentDir, externalDir, tmpDir)
 }
 
-// GoBinDir returns the absolute path to the bin directory of tools
+// GoBinDir returns the absolute path to the bin directory of tools.
 func GoBinDir() string {
 	return filepath.Join(currentDir, externalDir, goBinDir)
 }

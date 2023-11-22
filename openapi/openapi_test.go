@@ -1,7 +1,6 @@
 package openapi_test
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"syscall"
@@ -36,7 +35,7 @@ func TestDefinitionOutsideCurrentDir(t *testing.T) {
 func TestDefinitionDoesNotExist(t *testing.T) {
 	g := NewGomegaWithT(t)
 
-	definitionFile, err := ioutil.TempFile("", "mageloot-test")
+	definitionFile, err := os.CreateTemp("", "mageloot-test")
 	g.Expect(err).ToNot(HaveOccurred())
 	defer func() {
 		err = os.Remove(definitionFile.Name())
@@ -112,7 +111,7 @@ func TestWorkingOpenAPI(t *testing.T) {
 	g := NewGomegaWithT(t)
 
 	definitionPath := magetesting.AssetWorkingOpenAPIYaml()
-	outputDir, err := ioutil.TempDir(magetesting.AssetOpenAPIOutputDir(), "outdir")
+	outputDir, err := os.MkdirTemp(magetesting.AssetOpenAPIOutputDir(), "outdir")
 	g.Expect(err).ToNot(HaveOccurred())
 	defer func() {
 		err = os.RemoveAll(outputDir)
@@ -130,7 +129,7 @@ func TestBadOpenAPI(t *testing.T) {
 	g := NewGomegaWithT(t)
 
 	definitionPath := magetesting.AssetBadOpenAPIYaml()
-	outputDir, err := ioutil.TempDir(magetesting.AssetOpenAPIOutputDir(), "outdir")
+	outputDir, err := os.MkdirTemp(magetesting.AssetOpenAPIOutputDir(), "outdir")
 	g.Expect(err).ToNot(HaveOccurred())
 	defer func() {
 		err = os.RemoveAll(outputDir)

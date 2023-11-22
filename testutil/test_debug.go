@@ -1,7 +1,6 @@
 package testutil
 
 import (
-	"io/ioutil"
 	"os"
 	"strings"
 	"testing"
@@ -15,7 +14,7 @@ type LogDebugger struct {
 }
 
 func NewLogDebugger(t *testing.T, logName string) *LogDebugger {
-	outLog, err := ioutil.TempFile("", logName+"-test-log-*.log")
+	outLog, err := os.CreateTemp("", logName+"-test-log-*.log")
 	if err != nil {
 		t.Error(err)
 	}

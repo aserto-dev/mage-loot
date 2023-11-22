@@ -10,7 +10,7 @@ import (
 )
 
 // DefGoDep defines a go dependency that can be installed using
-// a command like `go install github.com/aserto-dev/foo@v1.2.3`
+// a command like `go install github.com/aserto-dev/foo@v1.2.3`.
 func DefGoDep(name, importPath, version, entrypoint string) {
 	cmdRegisterMutex.Lock()
 	defer cmdRegisterMutex.Unlock()

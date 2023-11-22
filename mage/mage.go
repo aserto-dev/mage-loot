@@ -10,7 +10,7 @@ import (
 	"github.com/magefile/mage/mage"
 )
 
-// Arg represents a mage argument
+// Arg represents a mage argument.
 type Arg func(*mageArgs)
 
 var (

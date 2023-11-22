@@ -14,14 +14,14 @@ type protocArgs struct {
 	protoFiles []string
 }
 
-// Arg represents a protoc CLI argument
+// Arg represents a protoc CLI argument.
 type Arg func(*protocArgs)
 
 var (
 	ui = clui.NewUI()
 )
 
-// Run runs the protoc CLI
+// Run runs the protoc CLI.
 func Run(args ...Arg) error {
 	protocArgs := &protocArgs{}
 
@@ -41,20 +41,17 @@ func Run(args ...Arg) error {
 	return sh.RunV(deps.BinPath("protoc"), finalArgs...)
 }
 
-// Add adds a new "name=value" style argument.
-// e.g. --proto_path=./foo
+// Add adds a new "name=value" style argument (e.g. --proto_path=./foo).
 func Add(name, value string) func(*protocArgs) {
 	return AddArg(fmt.Sprintf("%s=%s", name, value))
 }
 
-// AddOpt adds a plugin option argument.
-// e.g. --go_opt=paths=source_relative
+// AddOpt adds a plugin option argument (e.g. --go_opt=paths=source_relative).
 func AddOpt(name, opt, value string) func(*protocArgs) {
 	return AddArg(fmt.Sprintf("%s=%s=%s", name, opt, value))
 }
 
-// AddArg adds a simple argument.
-// e.g. --deterministic_output
+// AddArg adds a simple argument (e.g. --deterministic_output).
 func AddArg(arg string) func(*protocArgs) {
 	return func(o *protocArgs) {
 		o.args = append(o.args, arg)
@@ -92,7 +89,7 @@ func DeterministicOutput() Arg { return AddArg("--deterministic_output") }
 // flag.
 func DecodeRaw() Arg { return AddArg("--decode_raw") }
 
-// Out - output file
+// Out - output file.
 func Out(file string) Arg { return AddArg("-o" + file) }
 
 // IncludeImports - When using --descriptor_set_out, also include
@@ -153,7 +150,7 @@ func DescriptorSetOut(file string) Arg { return Add("--descriptor_set_out=%s", f
 
 // DependencyOut - Write a dependency output file in the format
 // expected by make. This writes the transitive
-// set of input file paths to FILE
+// set of input file paths to FILE.
 func DependencyOut(file string) Arg { return Add("--dependency_out", file) }
 
 // ErrorFormat - Set the format in which to print errors.
@@ -198,32 +195,32 @@ func RubyOut(outDir string) Arg { return Add("--ruby_out", outDir) }
 // GoOut - Generate go source files.
 func GoOut(outDir string) Arg { return Add("--go_out", outDir) }
 
-// GoGrpcOut - Generate go grpc files
+// GoGrpcOut - Generate go grpc files.
 func GoGrpcOut(outDir string) Arg { return Add("--go-grpc_out", outDir) }
 
 // GrpcGatewayOut - Generate a go grpc open api gateway.
 func GrpcGatewayOut(outDir string) Arg { return Add("--grpc-gateway_out", outDir) }
 
-// OpenAPIV2Out - Generate an Open API v2 definition
+// OpenAPIV2Out - Generate an Open API v2 definition.
 func OpenAPIV2Out(outDir string) Arg { return Add("--openapiv2_out", outDir) }
 
-// DocOut - Generate docs
+// DocOut - Generate docs.
 func DocOut(outDir string) Arg { return Add("--doc_out", outDir) }
 
-// DocOpt - Doc plugin option
+// DocOpt - Doc plugin option.
 func DocOpt(value string) Arg { return Add("--doc_opt", value) }
 
-// GoOpt - Go plugin option
+// GoOpt - Go plugin option.
 func GoOpt(opt, value string) Arg { return AddOpt("--go_opt", opt, value) }
 
-// GoGrpcOpt - Go grpc plugin option
+// GoGrpcOpt - Go grpc plugin option.
 func GoGrpcOpt(opt, value string) Arg { return AddOpt("--go-grpc_opt", opt, value) }
 
-// GrpcGatewayOpt - Grpc gateway plugin option
+// GrpcGatewayOpt - Grpc gateway plugin option.
 func GrpcGatewayOpt(opt, value string) Arg { return AddOpt("--grpc-gateway_opt", opt, value) }
 
-// OpenAPIV2Opt - Open Api plugin option
+// OpenAPIV2Opt - Open Api plugin option.
 func OpenAPIV2Opt(opt, value string) Arg { return AddOpt("--openapiv2_opt", opt, value) }
 
-// CSharpOpt - C# Options
+// CSharpOpt - C# Options.
 func CSharpOpt(opt, value string) Arg { return AddOpt("--csharp_opt", opt, value) }

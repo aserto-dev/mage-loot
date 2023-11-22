@@ -3,7 +3,6 @@ package fsutil
 import (
 	"io"
 	"io/fs"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -69,25 +68,38 @@ func hashFile(srcFilePath string) (uint64, error) {
 }
 
 func syncFolder(folderAbsPath, folderRelativePath, destDir string, destCreated, mirror bool) error {
-	fileInfos, err := ioutil.ReadDir(folderAbsPath)
+	dirEntry, err := os.ReadDir(folderAbsPath)
 	if err != nil {
 		return err
 	}
 
 	destAbsPath := filepath.Join(destDir, folderRelativePath)
-	destFilesMap := make(map[string]os.FileInfo, len(fileInfos))
+	destFilesMap := make(map[string]os.FileInfo, len(dirEntry))
+	fileInfos := make([]os.FileInfo, 0)
+
+	for _, entry := range dirEntry {
+		fileInfo, err := entry.Info()
+		if err != nil {
+			return err
+		}
+		fileInfos = append(fileInfos, fileInfo)
+	}
 
 	if !destCreated {
 		_, err := os.Stat(destAbsPath)
 		if err != nil && !os.IsNotExist(err) {
 			return err
 		} else if err == nil {
-			destFileInfos, err := ioutil.ReadDir(destAbsPath)
+			destFileInfos, err := os.ReadDir(destAbsPath)
 			if err != nil {
 				return err
 			}
 			for _, fi := range destFileInfos {
-				destFilesMap[filepath.Base(fi.Name())] = fi
+				fileInfo, err := fi.Info()
+				if err != nil {
+					return err
+				}
+				destFilesMap[filepath.Base(fi.Name())] = fileInfo
 			}
 		} else {
 			srcStats, err := os.Stat(folderAbsPath)
