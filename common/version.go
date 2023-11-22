@@ -17,8 +17,8 @@ func Commit() (string, error) {
 	return out, nil
 }
 
-func Version() (string, error) {
-	out, err := deps.GoDepOutput("sver")()
+func Version(args ...string) (string, error) {
+	out, err := deps.GoDepOutput("sver")(args...)
 	if err != nil {
 		return "", errors.Wrap(err, "please make sure you have a valid tag - failed to determine version")
 	}
