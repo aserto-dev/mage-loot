@@ -26,7 +26,7 @@ func init() {
 	}
 }
 
-// WorkDir returns the current working directory
+// WorkDir returns the current working directory.
 func WorkDir() string {
 	return cwd
 }

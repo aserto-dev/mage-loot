@@ -13,7 +13,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// DockerPush pushes an image
+// DockerPush pushes an image.
 func DockerPush(existingImage, imageToPush string) error {
 	UI.Normal().WithStringValue("tag", imageToPush).Msg("Tagging image.")
 
@@ -48,10 +48,23 @@ func DockerTags(registry, image string) ([]string, error) {
 
 // DockerImage builds the docker image for the project.
 func DockerImage(repositoryAndTag string, args ...string) error {
-	version, err := Version()
-	if err != nil {
-		return err
+
+	if repositoryAndTag == "" {
+		return errors.Errorf("docker image repository and tag can't be empty")
 	}
+
+	var version string
+	var err error
+	details := strings.Split(repositoryAndTag, ":")
+	if len(details) > 1 {
+		version = details[1]
+	} else {
+		version, err = Version()
+		if err != nil {
+			return err
+		}
+	}
+
 	commit, err := Commit()
 	if err != nil {
 		return err
@@ -69,10 +82,6 @@ func DockerImage(repositoryAndTag string, args ...string) error {
 		WithStringValue("date", date).
 		WithStringValue("platform", platform).
 		Msgf("Building docker image.")
-
-	if repositoryAndTag == "" {
-		return errors.Errorf("docker image repository and tag can't be empty")
-	}
 
 	return sh.RunWithV(map[string]string{
 		"COMMIT":  commit,

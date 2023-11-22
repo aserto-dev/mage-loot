@@ -1,6 +1,7 @@
 package testutil
 
 import (
+	"errors"
 	"testing"
 	"time"
 
@@ -83,7 +84,7 @@ func VaultValue(params ...interface{}) string {
 	if err == nil {
 		return string(entry)
 	}
-	if err != bigcache.ErrEntryNotFound {
+	if !errors.Is(err, bigcache.ErrEntryNotFound) {
 		panic(err)
 	}
 

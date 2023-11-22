@@ -14,14 +14,14 @@ type dotnetArgs struct {
 	project string
 }
 
-// Arg represents a dotnet CLI argument
+// Arg represents a dotnet CLI argument.
 type Arg func(*dotnetArgs)
 
 var (
 	ui = clui.NewUI()
 )
 
-// Run runs the dotnet CLI
+// Run runs the dotnet CLI.
 func Run(args ...Arg) error {
 	dotnetArgs := &dotnetArgs{}
 
@@ -41,14 +41,12 @@ func Run(args ...Arg) error {
 	return sh.RunV(deps.BinPath("dotnet"), finalArgs...)
 }
 
-// Add adds a new "name value" style argument.
-// e.g. dotnet
+// Add adds a new "name value" style argument (e.g dotnet).
 func Add(name, value string) func(*dotnetArgs) {
 	return AddArg(fmt.Sprintf("%s %s", name, value))
 }
 
-// AddArg adds a simple argument.
-// e.g. --help
+// AddArg adds a simple argument (e.g. --help).
 func AddArg(arg string) func(*dotnetArgs) {
 	return func(o *dotnetArgs) {
 		o.args = append(o.args, arg)

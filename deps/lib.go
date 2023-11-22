@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// DefLibDep makes sure a lib dependency is downloaded and unpacks it
+// DefLibDep makes sure a lib dependency is downloaded and unpacks it.
 func DefLibDep(name, url, sha, outputDir string, options ...Option) {
 	cmdRegisterMutex.Lock()
 	defer cmdRegisterMutex.Unlock()

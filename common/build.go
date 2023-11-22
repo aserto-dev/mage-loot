@@ -2,7 +2,7 @@ package common
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -44,7 +44,7 @@ func BuildAll(args ...string) error {
 		WithStringValue("date", date).
 		Msgf("Will build all commands.")
 
-	cmds, err := ioutil.ReadDir("cmd")
+	cmds, err := os.ReadDir("cmd")
 	if err != nil {
 		return errors.Wrap(err, "failed to read contents of './cmd' dir")
 	}
@@ -106,7 +106,7 @@ func Build(args ...string) error {
 		WithStringValue("date", date).
 		Msgf("Building.")
 
-	cmds, err := ioutil.ReadDir("cmd")
+	cmds, err := os.ReadDir("cmd")
 	if err != nil {
 		return errors.Wrap(err, "failed to read contents of './cmd' dir")
 	}

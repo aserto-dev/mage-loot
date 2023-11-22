@@ -4,7 +4,7 @@ import (
 	"github.com/aserto-dev/mage-loot/fsutil"
 )
 
-// Generate proto artifacts
+// Generate proto artifacts.
 func Generate(binFile string, protoPluginPaths []string) error {
 	if err := Lint(); err != nil {
 		return err

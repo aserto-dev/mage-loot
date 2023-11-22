@@ -14,14 +14,14 @@ type dotnetRestoreArgs struct {
 	project  string
 }
 
-// Arg represents a dotnet build CLI argument
+// Arg represents a dotnet build CLI argument.
 type Arg func(*dotnetRestoreArgs)
 
 var (
 	ui = clui.NewUI()
 )
 
-// Run runs the dotnet CLI
+// Run runs the dotnet CLI.
 func Run(args ...Arg) error {
 	dotnetRestoreArgs := &dotnetRestoreArgs{}
 
@@ -42,16 +42,14 @@ func Run(args ...Arg) error {
 	return sh.RunV(deps.BinPath("dotnet"), finalArgs...)
 }
 
-// Add adds a new "name value" style argument.
-// e.g. --v m
+// Add adds a new "name value" style argument (e.g. --v m).
 func Add(name, value string) func(*dotnetRestoreArgs) {
 	return func(o *dotnetRestoreArgs) {
 		o.args = append(o.args, name, value)
 	}
 }
 
-// AddArg adds a simple argument.
-// e.g. --help
+// AddArg adds a simple argument (e.g. --help).
 func AddArg(arg string) func(*dotnetRestoreArgs) {
 	return func(o *dotnetRestoreArgs) {
 		o.args = append(o.args, arg)
@@ -104,14 +102,14 @@ func LockFilePath(lockFilePath string) Arg { return Add("--lock-file-path", lock
 // Forces restore to reevaluate all dependencies even if a lock file already exists.
 func ForceElevate() Arg { return AddArg("--force-evaluate") }
 
-// Solution file (.sln) to build
+// Solution file (.sln) to build.
 func Solution(file string) func(*dotnetRestoreArgs) {
 	return func(o *dotnetRestoreArgs) {
 		o.solution = file
 	}
 }
 
-// Project file (.csproj) to build
+// Project file (.csproj) to build.
 func Project(file string) func(*dotnetRestoreArgs) {
 	return func(o *dotnetRestoreArgs) {
 		o.project = file

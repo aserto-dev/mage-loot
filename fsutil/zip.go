@@ -15,7 +15,7 @@ const (
 	maxZippedFileSize = 5 * 1024 * 1024 * 1024
 )
 
-// Unzip unzips an archive to a destination directory
+// Unzip unzips an archive to a destination directory.
 func Unzip(src, dest string) ([]string, error) {
 	var filenames []string
 
@@ -28,7 +28,7 @@ func Unzip(src, dest string) ([]string, error) {
 	for _, f := range r.File {
 		fpath := filepath.Join(dest, f.Name) // nolint:gosec // check ZipSlip below
 
-		// Check for ZipSlip. More Info: http://bit.ly/2MsjAWE
+		// Check for ZipSlip. More Info: http://bit.ly/2MsjAWE .
 		if !strings.HasPrefix(fpath, filepath.Clean(dest)+string(os.PathSeparator)) {
 			return filenames, fmt.Errorf("%s: illegal file path", fpath)
 		}
@@ -63,7 +63,7 @@ func Unzip(src, dest string) ([]string, error) {
 
 		_, err = io.Copy(outFile, rc) // nolint:gosec // max file size checked above
 
-		// Close the file without defer to close before next iteration of loop
+		// Close the file without defer to close before next iteration of loop.
 		outFile.Close()
 		rc.Close()
 

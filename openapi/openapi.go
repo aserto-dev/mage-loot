@@ -17,14 +17,14 @@ const (
 )
 
 // GenerateOpenAPI generates code for the specified Open API definition
-// the openAPI definition path must be relative to the current working directory
+// the openAPI definition path must be relative to the current working directory.
 func GenerateOpenAPI(version, openAPIDefinitionPath, packageName, outputDir, generatorType string, additionalArgs ...string) error {
 	currentDir, err := os.Getwd()
 	if err != nil {
 		return errors.Wrap(err, "failed to get working directory")
 	}
 
-	// Check that the definition path is located somewhere inside the current dir
+	// Check that the definition path is located somewhere inside the current dir.
 	openapiAbsPath, err := filepath.Abs(openAPIDefinitionPath)
 	if err != nil {
 		return errors.Wrapf(err, "failed to determine absolute path for openapi definition '%s'", openAPIDefinitionPath)
@@ -45,7 +45,7 @@ func GenerateOpenAPI(version, openAPIDefinitionPath, packageName, outputDir, gen
 	}
 	openapiContainerPath := filepath.Join("/local", openapiRelPath) // nolint // container will always be unix
 
-	// Check that the output director is located somewhere inside the current dir
+	// Check that the output director is located somewhere inside the current dir.
 	outputAbsDir, err := filepath.Abs(outputDir)
 	if err != nil {
 		return errors.Wrapf(err, "failed to determine absolute path for output dir '%s'", outputDir)

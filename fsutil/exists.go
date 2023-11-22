@@ -6,7 +6,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// FileExists checks if a file exists
+// FileExists checks if a file exists.
 func FileExists(path string) (bool, error) {
 	if info, err := os.Stat(path); err == nil {
 		if info.IsDir() {
@@ -20,7 +20,7 @@ func FileExists(path string) (bool, error) {
 	}
 }
 
-// DirExists checks if a directory exists
+// DirExists checks if a directory exists.
 func DirExists(path string) (bool, error) {
 	if info, err := os.Stat(path); err == nil {
 		if !info.IsDir() {

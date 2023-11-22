@@ -3,7 +3,6 @@ package buf
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -30,14 +29,14 @@ type Tag struct {
 	CreatedTime string `json:"create_time"`
 }
 
-// Arg represents a protoc CLI argument
+// Arg represents a protoc CLI argument.
 type Arg func(*bufArgs)
 
 var (
 	ui = clui.NewUI()
 )
 
-// Run runs the protoc CLI
+// Run runs the protoc CLI.
 func Run(args ...Arg) error {
 	return RunWithEnv(nil, args...)
 }
@@ -91,7 +90,7 @@ func getLoginFile() (string, error) {
 		return "", errors.Wrapf(err, "failed to create tmp dir")
 	}
 
-	file, err := ioutil.TempFile(filepath.Join(deps.ExtTmpDir()), ".netrc*")
+	file, err := os.CreateTemp(deps.ExtTmpDir(), ".netrc*")
 	if err != nil {
 		return "", err
 	}
@@ -102,7 +101,7 @@ func getLoginFile() (string, error) {
 	}
 
 	bufToken := testutil.VaultValue("buf.build", "ASERTO_BUF_TOKEN")
-	_, err = file.WriteString(fmt.Sprintf("machine buf.build\npassword %s", bufToken))
+	_, err = fmt.Fprintf(file, "machine buf.build\npassword %s", bufToken)
 	if err != nil {
 		return "", err
 	}
@@ -131,7 +130,7 @@ func AddPaths(paths []string) func(*bufArgs) {
 	}
 }
 
-// Gets all the tags from a buf repository
+// Gets all the tags from a buf repository.
 func GetTags(repository string) ([]Tag, error) {
 	bufDep := deps.GoDepOutput("buf")
 	out, err := bufDep("beta", "registry", "tag", "list", repository, "--format", "json", "--reverse")
@@ -148,7 +147,7 @@ func GetTags(repository string) ([]Tag, error) {
 	return result.Results, nil
 }
 
-// Gets the latest commit based on create_date
+// Gets the latest commit based on create_date.
 func GetLatestTag(repository string) (Tag, error) {
 	tags, err := GetTags(repository)
 	if err != nil {
