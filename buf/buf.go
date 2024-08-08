@@ -33,9 +33,7 @@ type Tag struct {
 // Arg represents a protoc CLI argument
 type Arg func(*bufArgs)
 
-var (
-	ui = clui.NewUI()
-)
+var ui = clui.NewUI()
 
 // Run runs the protoc CLI
 func Run(args ...Arg) error {
@@ -86,7 +84,7 @@ func getLoginFile() (string, error) {
 
 	fmt.Println("Using vault to get buf credentials")
 
-	err := os.MkdirAll(deps.ExtTmpDir(), 0700)
+	err := os.MkdirAll(deps.ExtTmpDir(), 0o700)
 	if err != nil {
 		return "", errors.Wrapf(err, "failed to create tmp dir")
 	}
@@ -96,7 +94,7 @@ func getLoginFile() (string, error) {
 		return "", err
 	}
 
-	err = file.Chmod(0700)
+	err = file.Chmod(0o700)
 	if err != nil {
 		return "", err
 	}
@@ -134,7 +132,7 @@ func AddPaths(paths []string) func(*bufArgs) {
 // Gets all the tags from a buf repository
 func GetTags(repository string) ([]Tag, error) {
 	bufDep := deps.GoDepOutput("buf")
-	out, err := bufDep("beta", "registry", "tag", "list", repository, "--format", "json", "--reverse")
+	out, err := bufDep("beta", "registry", "label", "list", repository, "--format", "json", "--reverse")
 	if err != nil {
 		ui.Problem().Msg(fmt.Sprintf("Error retrieving tags for %s. Message: %s, Error: %s", repository, out, err.Error()))
 		return nil, err
