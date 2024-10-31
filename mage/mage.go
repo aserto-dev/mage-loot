@@ -1,20 +1,21 @@
 package mage
 
 import (
-	"fmt"
 	"os"
 	"strings"
 
 	"github.com/aserto-dev/clui"
 	"github.com/aserto-dev/mage-loot/common"
 	"github.com/magefile/mage/mage"
+	"github.com/pkg/errors"
 )
 
-// Arg represents a mage argument
+// Arg represents a mage argument.
 type Arg func(*mageArgs)
 
 var (
-	ui = clui.NewUI()
+	ui            = clui.NewUI()
+	ErrMageFailed = errors.New("mage run failed")
 )
 
 type mageArgs struct {
@@ -69,7 +70,7 @@ func mageRun(mageDir, workDir string, args ...Arg) error {
 	exitCode := mage.Invoke(invocation)
 
 	if exitCode != 0 {
-		return fmt.Errorf("mage exited with code %d", exitCode)
+		return errors.Wrapf(ErrMageFailed, "exit code %d", exitCode)
 	}
 	return nil
 }

@@ -6,18 +6,15 @@ linters-settings:
   depguard:
     list-type: blacklist
     packages:
-      # logging is allowed only by logutils.Log, logrus
-      # is allowed to use only in logutils package
+      # logging is allowed only by zerolog
       - github.com/sirupsen/logrus
     packages-with-error-message:
-      - github.com/sirupsen/logrus: "logging is allowed only by logutils.Log"
+      - github.com/sirupsen/logrus: "logging is allowed only by zerolog"
   dupl:
     threshold: 100
   funlen:
     lines: 100
-    statements: 50
-  gci:
-    local-prefixes: github.com/golangci/golangci-lint
+    statements: 80
   goconst:
     min-len: 2
     min-occurrences: 2
@@ -29,21 +26,25 @@ linters-settings:
       - performance
       - style
     disabled-checks:
-      - dupImport # https://github.com/go-critic/go-critic/issues/845
+      - dupImport  # https://github.com/go-critic/go-critic/issues/845
       - ifElseChain
       - octalLiteral
+      - whyNoLint
       - wrapperFunc
   gocyclo:
-    min-complexity: 16
+    min-complexity: 18
   goimports:
     local-prefixes: github.com/golangci/golangci-lint
+  golint:
+    min-confidence: 0
   gomnd:
-    settings:
-      mnd:
-        # don't include the "operation" and "assign"
-        checks: argument,case,condition,return
+    checks:
+      - argument
+      - case
+      - condition
+      - return
   govet:
-    check-shadowing: true
+    shadow: true
     settings:
       printf:
         funcs:
@@ -51,50 +52,66 @@ linters-settings:
           - (github.com/golangci/golangci-lint/pkg/logutils.Log).Warnf
           - (github.com/golangci/golangci-lint/pkg/logutils.Log).Errorf
           - (github.com/golangci/golangci-lint/pkg/logutils.Log).Fatalf
-  lll:
-    line-length: 140
   maligned:
     suggest-new: true
   misspell:
     locale: US
   nolintlint:
-    allow-leading-space: true # don't require machine-readable nolint directives (i.e. with no leading space)
-    allow-unused: false # report any unused nolint directives
-    require-explanation: false # don't require an explanation for nolint directives
-    require-specific: false # don't require nolint directives to be specific about which linter is being skipped
+    allow-unused: false  # report any unused nolint directives
+    require-explanation: false  # don't require an explanation for nolint directives
+    require-specific: false  # don't require nolint directives to be specific about which linter is being skipped
 
 linters:
   # please, do not use `enable-all`: it's deprecated and will be removed soon.
   # inverted configuration with `enable-all` and `disable` is not scalable during updates of golangci-lint
   disable-all: true
   enable:
+    - asciicheck
     - bodyclose
-    - deadcode
-    - depguard
-    - dupl
+    - dogsled
     - errcheck
+    - copyloopvar
+    - exhaustive
     - funlen
     - goconst
     - gocritic
     - gocyclo
+    - godot
+    - err113
     - gofmt
     - goimports
+    - goprintffuncname
     - gosec
     - gosimple
     - govet
     - ineffassign
-    - lll
     - misspell
     - nakedret
+    - noctx
+    - rowserrcheck
     - staticcheck
-    - structcheck
     - stylecheck
+    - testpackage
     - typecheck
     - unconvert
     - unparam
-    - varcheck
-    - revive
-    - exportloopref
+    - unused
+
+    # don't enable:
+    # - depguard
+    # - gochecknoinits
+    # - dupl
+    # - gochecknoglobals
+    # - gocognit
+    # - godox
+    # - gomnd
+    # - lll
+    # - nestif
+    # - nolintlint # conflict with 1.19 gofmt changes
+    # - prealloc
+    # - revive
+    # - wsl
+    # - whitespace
 
 issues:
   # List of regexps of issue texts to exclude, empty list by default.
@@ -102,28 +119,32 @@ issues:
   # it can be disabled by `exclude-use-default: false`. To list all
   # excluded by default patterns execute `golangci-lint run --help`
   exclude:
-  - declaration of "(err|ctx)" shadows declaration at
+    - declaration of "(err|ctx)" shadows declaration at
+    - shadow of imported from 'github.com/stretchr/testify/assert' package 'assert'
   # Excluding configuration per-path, per-linter, per-text and per-source
   exclude-rules:
     - path: _test\.go
       linters:
-      - gomnd
-
+        - gomnd
     # https://github.com/go-critic/go-critic/issues/926
-    - linters:
-      - gocritic
-      text: "unnecessaryDefer:"
-
-    # TODO temporary rule, must be removed
-    # seems related to v0.34.1, but I was not able to reproduce locally,
-    # I was also not able to reproduce in the CI of a fork,
-    # only the golangci-lint CI seems to be affected by this invalid analysis.
-    - path: pkg/golinters/scopelint.go
-      text: 'directive `//nolint:interfacer` is unused for linter interfacer'
-
-run:
-  skip-dirs:
-  - test/testdata_etc
-  - internal/cache
-  - internal/renameio
-  - internal/robustio
+    - text: "unnecessaryDefer:"
+      linters:
+        - gocritic
+    - text: "unnamedResult:"
+      linters:
+        - gocritic
+    - path: \.resolvers\.go
+      text: "typeDefFirst:"
+      linters:
+        - gocritic
+    - path: \.resolvers\.go
+      text: "paramTypeCombine:"
+      linters:
+        - gocritic
+    - path: \.resolvers\.go
+      text: "hugeParam:"
+      linters:
+        - gocritic
+    - text: "G404"
+      linters:
+        - gosec

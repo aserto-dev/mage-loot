@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"io"
 
 	"github.com/aserto-dev/clui"
@@ -15,6 +14,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 )
+
+var ErrStartFailed = errors.New("failed to start container")
 
 type dockerCLI struct {
 	dockerClient *client.Client
@@ -99,7 +100,7 @@ func (cli *dockerCLI) startContainer(ctx context.Context, containerName string) 
 
 	if containerType.State != "running" {
 		cli.ui.Problem().Msgf("container [%s] is not running, check logs by running 'docker logs %s'", containerName, containerType.ID)
-		return fmt.Errorf("failed to start container")
+		return ErrStartFailed
 	}
 
 	return nil

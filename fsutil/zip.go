@@ -2,7 +2,6 @@ package fsutil
 
 import (
 	"archive/zip"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -15,7 +14,12 @@ const (
 	maxZippedFileSize = 5 * 1024 * 1024 * 1024
 )
 
-// Unzip unzips an archive to a destination directory
+var (
+	ErrIllegalFilePath = errors.New("illegal file path")
+	ErrFileTooLarge    = errors.New("file too large")
+)
+
+// Unzip unzips an archive to a destination directory.
 func Unzip(src, dest string) ([]string, error) {
 	var filenames []string
 
@@ -30,7 +34,7 @@ func Unzip(src, dest string) ([]string, error) {
 
 		// Check for ZipSlip. More Info: http://bit.ly/2MsjAWE
 		if !strings.HasPrefix(fpath, filepath.Clean(dest)+string(os.PathSeparator)) {
-			return filenames, fmt.Errorf("%s: illegal file path", fpath)
+			return filenames, errors.Wrap(ErrIllegalFilePath, fpath)
 		}
 
 		filenames = append(filenames, fpath)
@@ -58,7 +62,7 @@ func Unzip(src, dest string) ([]string, error) {
 		}
 
 		if f.UncompressedSize64 > maxZippedFileSize {
-			return nil, errors.Errorf("can't handle files larger than %d", maxZippedFileSize)
+			return nil, errors.Wrapf(ErrFileTooLarge, "max size: %d", maxZippedFileSize)
 		}
 
 		_, err = io.Copy(outFile, rc) // nolint:gosec // max file size checked above

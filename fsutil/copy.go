@@ -1,14 +1,13 @@
 package fsutil
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
 	"github.com/pkg/errors"
 )
 
-// CopyDir recursively copies the src directory to the dest directory
+// CopyDir recursively copies the src directory to the dest directory.
 func CopyDir(src, dest string) error {
 
 	f, err := os.Open(src)
@@ -31,7 +30,7 @@ func CopyDir(src, dest string) error {
 		}
 	}
 
-	files, err := ioutil.ReadDir(src)
+	files, err := os.ReadDir(src)
 	if err != nil {
 		return errors.Wrapf(err, "could not read source directory: %s ", src)
 	}
@@ -50,14 +49,18 @@ func CopyDir(src, dest string) error {
 
 		if !f.IsDir() {
 			sourceFile := filepath.Join(src, f.Name())
-			content, err := ioutil.ReadFile(sourceFile)
+			content, err := os.ReadFile(sourceFile)
 			if err != nil {
 				return errors.Wrapf(err, "could not read source file %s", sourceFile)
 
 			}
 
 			destFile := filepath.Join(dest, f.Name())
-			err = ioutil.WriteFile(destFile, content, f.Mode())
+			info, err := f.Info()
+			if err != nil {
+				return errors.Wrapf(err, "could not get file info for source file %s", sourceFile)
+			}
+			err = os.WriteFile(destFile, content, info.Mode())
 			if err != nil {
 				return errors.Wrapf(err, "could not write to destination file %s", destFile)
 

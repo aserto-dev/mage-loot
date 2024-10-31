@@ -6,6 +6,7 @@ import (
 
 	bigcache "github.com/allegro/bigcache/v3"
 	"github.com/aserto-dev/mage-loot/deps"
+	"github.com/pkg/errors"
 	"github.com/tidwall/gjson"
 )
 
@@ -83,7 +84,7 @@ func VaultValue(params ...interface{}) string {
 	if err == nil {
 		return string(entry)
 	}
-	if err != bigcache.ErrEntryNotFound {
+	if !errors.Is(err, bigcache.ErrEntryNotFound) {
 		panic(err)
 	}
 

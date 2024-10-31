@@ -17,7 +17,7 @@ const (
 )
 
 // GenerateOpenAPI generates code for the specified Open API definition
-// the openAPI definition path must be relative to the current working directory
+// the openAPI definition path must be relative to the current working directory.
 func GenerateOpenAPI(version, openAPIDefinitionPath, packageName, outputDir, generatorType string, additionalArgs ...string) error {
 	currentDir, err := os.Getwd()
 	if err != nil {

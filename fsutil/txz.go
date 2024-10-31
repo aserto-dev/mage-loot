@@ -2,7 +2,6 @@ package fsutil
 
 import (
 	"archive/tar"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -50,7 +49,7 @@ func ExtractTarXz(src, dest string) error { //nolint:funlen,gocyclo // to be ref
 
 		// Check for ZipSlip. More Info: http://bit.ly/2MsjAWE
 		if !strings.HasPrefix(fpath, filepath.Clean(dest)+string(os.PathSeparator)) {
-			return fmt.Errorf("%s: illegal file path", fpath)
+			return errors.Wrap(ErrIllegalFilePath, fpath)
 		}
 
 		switch header.Typeflag {
