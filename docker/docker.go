@@ -8,6 +8,7 @@ import (
 	"github.com/aserto-dev/clui"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/registry"
 	"github.com/docker/go-connections/nat"
 )
 
@@ -27,7 +28,7 @@ type dockerArgs struct {
 	envVars       []string
 	capAdds       []string
 	publishPorts  []PublishedPort
-	registryCreds *types.AuthConfig
+	registryCreds *registry.AuthConfig
 	entrypoint    []string
 	networkName   string
 }
@@ -159,7 +160,7 @@ func WithPublishedPort(publishedPort PublishedPort) func(*dockerArgs) {
 	}
 }
 
-func WithCredentials(credentials *types.AuthConfig) func(*dockerArgs) {
+func WithCredentials(credentials *registry.AuthConfig) func(*dockerArgs) {
 	return func(o *dockerArgs) {
 		o.registryCreds = credentials
 	}

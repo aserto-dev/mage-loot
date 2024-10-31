@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"sort"
 
+	"dario.cat/mergo"
 	"github.com/aserto-dev/mage-loot/fsutil"
-	"github.com/imdario/mergo"
 )
 
 func MergeOpenAPI(repo, outfile string, subServices []string) error {

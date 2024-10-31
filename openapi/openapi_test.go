@@ -31,7 +31,7 @@ func TestDefinitionOutsideCurrentDir(t *testing.T) {
 	err := openapi.GenerateOpenAPI(openapiTestVersion, definitionPath, packageName, outputDir, generatorType)
 
 	g.Expect(err).To(HaveOccurred())
-	expected := fmt.Sprintf("file '%sfoo.yaml' doesn't exist", outputDir)
+	expected := fmt.Sprintf("file '%s' doesn't exist", filepath.Join(outputDir, "foo.yaml"))
 	g.Expect(err.Error()).To(Equal(expected))
 }
 
@@ -51,7 +51,7 @@ func TestDefinitionDoesNotExist(t *testing.T) {
 	err = openapi.GenerateOpenAPI(openapiTestVersion, definitionFile.Name(), packageName, outputDir, generatorType)
 
 	g.Expect(err).To(HaveOccurred())
-	expected := fmt.Sprintf("path '%smageloot-test.+?' is outside the current directory", outputDir)
+	expected := fmt.Sprintf("path '%s' is outside the current directory", filepath.Join(outputDir, "mageloot-test.+?"))
 	g.Expect(err.Error()).To(MatchRegexp(expected))
 }
 

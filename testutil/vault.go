@@ -1,6 +1,7 @@
 package testutil
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -16,7 +17,7 @@ var (
 
 func init() {
 	var err error
-	vaultCache, err = bigcache.NewBigCache(bigcache.DefaultConfig(10 * time.Minute))
+	vaultCache, err = bigcache.New(context.Background(), bigcache.DefaultConfig(10*time.Minute))
 	if err != nil {
 		panic(err)
 	}
