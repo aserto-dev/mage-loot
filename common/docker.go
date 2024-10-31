@@ -13,7 +13,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// DockerPush pushes an image
+// DockerPush pushes an image.
 func DockerPush(existingImage, imageToPush string) error {
 	UI.Normal().WithStringValue("tag", imageToPush).Msg("Tagging image.")
 

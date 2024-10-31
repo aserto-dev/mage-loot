@@ -14,14 +14,14 @@ type dotnetBuildArgs struct {
 	project  string
 }
 
-// Arg represents a dotnet build CLI argument
+// Arg represents a dotnet build CLI argument.
 type Arg func(*dotnetBuildArgs)
 
 var (
 	ui = clui.NewUI()
 )
 
-// Run runs the dotnet CLI
+// Run runs the dotnet CLI.
 func Run(args ...Arg) error {
 	dotnetBuildArgs := &dotnetBuildArgs{}
 
@@ -43,7 +43,7 @@ func Run(args ...Arg) error {
 }
 
 // Add adds a new "name value" style argument.
-// e.g. --v m
+// e.g. --v m.
 func Add(name, value string) func(*dotnetBuildArgs) {
 	return func(o *dotnetBuildArgs) {
 		o.args = append(o.args, name, value)
@@ -51,7 +51,7 @@ func Add(name, value string) func(*dotnetBuildArgs) {
 }
 
 // AddArg adds a simple argument.
-// e.g. --help
+// e.g. --help.
 func AddArg(arg string) func(*dotnetBuildArgs) {
 	return func(o *dotnetBuildArgs) {
 		o.args = append(o.args, arg)
@@ -88,7 +88,7 @@ func NoLogo() Arg { return AddArg("--nologo") }
 // Do not restore the project before building.
 func NoRestore() Arg { return AddArg("--no-restore") }
 
-// Allows the command to stop and wait for user input or action (for example to complete authentication)
+// Allows the command to stop and wait for user input or action (for example to complete authentication).
 func Interactive() Arg { return AddArg("--interactive") }
 
 // Set the MSBuild verbosity level. Allowed values are q[uiet], m[inimal], n[ormal], d[etailed], and diag[nostic].
@@ -97,14 +97,14 @@ func Verbosity(level string) Arg { return Add("-v", level) }
 // Force all dependencies to be resolved even if the last restore was successful.
 func Force() Arg { return AddArg("--force") }
 
-// Solution file (.sln) to build
+// Solution file (.sln) to build.
 func Solution(file string) func(*dotnetBuildArgs) {
 	return func(o *dotnetBuildArgs) {
 		o.solution = file
 	}
 }
 
-// Project file (.csproj) to build
+// Project file (.csproj) to build.
 func Project(file string) func(*dotnetBuildArgs) {
 	return func(o *dotnetBuildArgs) {
 		o.project = file

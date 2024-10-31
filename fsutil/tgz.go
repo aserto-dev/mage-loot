@@ -3,7 +3,6 @@ package fsutil
 import (
 	"archive/tar"
 	"compress/gzip"
-	"fmt"
 	"io"
 	"io/fs"
 	"os"
@@ -48,7 +47,7 @@ func ExtractTarGz(src, dest string) error {
 
 		// Check for ZipSlip. More Info: http://bit.ly/2MsjAWE
 		if !strings.HasPrefix(fpath, filepath.Clean(dest)+string(os.PathSeparator)) {
-			return fmt.Errorf("%s: illegal file path", fpath)
+			return errors.Wrap(ErrIllegalFilePath, fpath)
 		}
 
 		err = createTarResource(header, fpath, tarReader)
@@ -93,7 +92,7 @@ func writeTarFile(tarReader *tar.Reader, fpath string, fileMode int64) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to create file")
 	}
-	err = outFile.Chmod(fs.FileMode(fileMode))
+	err = outFile.Chmod(fs.FileMode(fileMode)) // nolint: gosec
 	if err != nil {
 		return errors.Wrapf(err, "cannot change mode of file: %s", fpath)
 	}

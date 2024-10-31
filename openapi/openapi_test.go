@@ -1,9 +1,10 @@
 package openapi_test
 
 import (
-	"io/ioutil"
+	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"syscall"
 	"testing"
 
@@ -30,13 +31,14 @@ func TestDefinitionOutsideCurrentDir(t *testing.T) {
 	err := openapi.GenerateOpenAPI(openapiTestVersion, definitionPath, packageName, outputDir, generatorType)
 
 	g.Expect(err).To(HaveOccurred())
-	g.Expect(err.Error()).To(Equal("file '/tmp/foo.yaml' doesn't exist"))
+	expected := fmt.Sprintf("file '%s' doesn't exist", filepath.Join(outputDir, "foo.yaml"))
+	g.Expect(err.Error()).To(Equal(expected))
 }
 
 func TestDefinitionDoesNotExist(t *testing.T) {
 	g := NewGomegaWithT(t)
 
-	definitionFile, err := ioutil.TempFile("", "mageloot-test")
+	definitionFile, err := os.CreateTemp("", "mageloot-test")
 	g.Expect(err).ToNot(HaveOccurred())
 	defer func() {
 		err = os.Remove(definitionFile.Name())
@@ -49,7 +51,8 @@ func TestDefinitionDoesNotExist(t *testing.T) {
 	err = openapi.GenerateOpenAPI(openapiTestVersion, definitionFile.Name(), packageName, outputDir, generatorType)
 
 	g.Expect(err).To(HaveOccurred())
-	g.Expect(err.Error()).To(MatchRegexp("path '/tmp/mageloot-test.+?' is outside the current directory"))
+	expected := fmt.Sprintf("path '%s' is outside the current directory", filepath.Join(outputDir, "mageloot-test.+?"))
+	g.Expect(err.Error()).To(MatchRegexp(expected))
 }
 
 func TestDefinitionIsADir(t *testing.T) {
@@ -77,7 +80,8 @@ func TestOutputOutsideCurrentDir(t *testing.T) {
 	err := openapi.GenerateOpenAPI(openapiTestVersion, definitionPath, packageName, outputDir, generatorType)
 
 	g.Expect(err).To(HaveOccurred())
-	g.Expect(err.Error()).To(Equal("path '/tmp' is outside the current directory"))
+	expected := fmt.Sprintf("path '%s' is outside the current directory", strings.TrimSuffix(outputDir, "/"))
+	g.Expect(err.Error()).To(Equal(expected))
 }
 
 func TestOutputDoesNotExist(t *testing.T) {
@@ -91,7 +95,8 @@ func TestOutputDoesNotExist(t *testing.T) {
 	err := openapi.GenerateOpenAPI(openapiTestVersion, definitionPath, packageName, outputDir, generatorType)
 
 	g.Expect(err).To(HaveOccurred())
-	g.Expect(err.Error()).To(Equal("dir '/tmp/thispathshouldnotexist' doesn't exist"))
+	expected := fmt.Sprintf("dir '%s' doesn't exist", outputDir)
+	g.Expect(err.Error()).To(Equal(expected))
 }
 
 func TestOutputIsAFile(t *testing.T) {
@@ -112,7 +117,7 @@ func TestWorkingOpenAPI(t *testing.T) {
 	g := NewGomegaWithT(t)
 
 	definitionPath := magetesting.AssetWorkingOpenAPIYaml()
-	outputDir, err := ioutil.TempDir(magetesting.AssetOpenAPIOutputDir(), "outdir")
+	outputDir, err := os.MkdirTemp(magetesting.AssetOpenAPIOutputDir(), "outdir")
 	g.Expect(err).ToNot(HaveOccurred())
 	defer func() {
 		err = os.RemoveAll(outputDir)
@@ -130,7 +135,7 @@ func TestBadOpenAPI(t *testing.T) {
 	g := NewGomegaWithT(t)
 
 	definitionPath := magetesting.AssetBadOpenAPIYaml()
-	outputDir, err := ioutil.TempDir(magetesting.AssetOpenAPIOutputDir(), "outdir")
+	outputDir, err := os.MkdirTemp(magetesting.AssetOpenAPIOutputDir(), "outdir")
 	g.Expect(err).ToNot(HaveOccurred())
 	defer func() {
 		err = os.RemoveAll(outputDir)

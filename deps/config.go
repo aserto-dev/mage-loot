@@ -1,7 +1,6 @@
 package deps
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -137,7 +136,7 @@ func init() {
 
 	configs := &depFile{}
 
-	yamlFile, err := ioutil.ReadFile(configFile)
+	yamlFile, err := os.ReadFile(configFile)
 	if err != nil {
 		panic(errors.Wrapf(err, "failed to read %s", configFile))
 	}

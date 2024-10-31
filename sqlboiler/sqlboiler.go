@@ -13,14 +13,14 @@ type sqlboilerArgs struct {
 	args []string
 }
 
-// Arg represents a sqlboiler CLI argument
+// Arg represents a sqlboiler CLI argument.
 type Arg func(*sqlboilerArgs)
 
 var (
 	ui = clui.NewUI()
 )
 
-// Run runs the sqlboiler CLI
+// Run runs the sqlboiler CLI.
 func Run(args ...Arg) error {
 	sqlboilerArgs := &sqlboilerArgs{}
 
@@ -49,7 +49,7 @@ func Run(args ...Arg) error {
 }
 
 // AddArg adds a simple argument.
-// e.g. --foo
+// e.g. --foo.
 func AddArg(arg string) func(*sqlboilerArgs) {
 	return func(o *sqlboilerArgs) {
 		o.args = append(o.args, arg)

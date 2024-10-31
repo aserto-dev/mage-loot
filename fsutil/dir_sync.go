@@ -3,7 +3,6 @@ package fsutil
 import (
 	"io"
 	"io/fs"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -69,7 +68,7 @@ func hashFile(srcFilePath string) (uint64, error) {
 }
 
 func syncFolder(folderAbsPath, folderRelativePath, destDir string, destCreated, mirror bool) error {
-	fileInfos, err := ioutil.ReadDir(folderAbsPath)
+	fileInfos, err := readDir(folderAbsPath)
 	if err != nil {
 		return err
 	}
@@ -82,12 +81,22 @@ func syncFolder(folderAbsPath, folderRelativePath, destDir string, destCreated, 
 		if err != nil && !os.IsNotExist(err) {
 			return err
 		} else if err == nil {
-			destFileInfos, err := ioutil.ReadDir(destAbsPath)
+			destEntries, err := os.ReadDir(destAbsPath)
 			if err != nil {
 				return err
 			}
-			for _, fi := range destFileInfos {
-				destFilesMap[filepath.Base(fi.Name())] = fi
+
+			for _, de := range destEntries {
+				if de.IsDir() {
+					continue
+				}
+
+				info, err := de.Info()
+				if err != nil {
+					return err
+				}
+
+				destFilesMap[filepath.Base(de.Name())] = info
 			}
 		} else {
 			srcStats, err := os.Stat(folderAbsPath)
@@ -114,7 +123,27 @@ func syncFolder(folderAbsPath, folderRelativePath, destDir string, destCreated, 
 	}
 
 	return nil
+}
 
+func readDir(dirPath string) ([]fs.FileInfo, error) {
+	dirEntries, err := os.ReadDir(dirPath)
+	if err != nil {
+		return nil, err
+	}
+
+	fileInfos := []fs.FileInfo{}
+	for _, de := range dirEntries {
+		if de.IsDir() {
+			continue
+		}
+		info, err := de.Info()
+		if err != nil {
+			return nil, err
+		}
+		fileInfos = append(fileInfos, info)
+	}
+
+	return fileInfos, nil
 }
 
 func syncFolderContent(fileInfos []fs.FileInfo, destFilesMap map[string]fs.FileInfo, destAbsPath, folderRelativePath,

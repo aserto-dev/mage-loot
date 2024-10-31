@@ -4,17 +4,20 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"io"
 
 	"github.com/aserto-dev/clui"
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
+	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 )
+
+var ErrStartFailed = errors.New("failed to start container")
 
 type dockerCLI struct {
 	dockerClient *client.Client
@@ -37,9 +40,9 @@ func newCLI(cfg *config, ui *clui.UI) (*dockerCLI, error) {
 }
 
 func (cli *dockerCLI) startContainer(ctx context.Context, containerName string) error {
-	image := cli.cfg.containerConfig.Image
-	cli.ui.Note().Msgf("checking image %s", image)
-	imagePullOptions := types.ImagePullOptions{}
+	img := cli.cfg.containerConfig.Image
+	cli.ui.Note().Msgf("checking image %s", img)
+	imagePullOptions := image.PullOptions{}
 	if cli.cfg.credentials != nil {
 		encodedJSON, err := json.Marshal(cli.cfg.credentials)
 		if err != nil {
@@ -49,9 +52,9 @@ func (cli *dockerCLI) startContainer(ctx context.Context, containerName string) 
 		imagePullOptions.RegistryAuth = authStr
 	}
 
-	ioReader, err := cli.dockerClient.ImagePull(ctx, image, imagePullOptions)
+	ioReader, err := cli.dockerClient.ImagePull(ctx, img, imagePullOptions)
 	if err != nil {
-		return errors.Wrapf(err, "failed to pull image [%s]", image)
+		return errors.Wrapf(err, "failed to pull image [%s]", img)
 	}
 	_, err = io.Copy(cli.ui.Output(), ioReader)
 	if err != nil {
@@ -83,7 +86,7 @@ func (cli *dockerCLI) startContainer(ctx context.Context, containerName string) 
 		return errors.Wrap(err, "failed to create container")
 	}
 
-	startupOptions := types.ContainerStartOptions{}
+	startupOptions := container.StartOptions{}
 
 	ui.Note().Msg("starting docker container")
 	err = cli.dockerClient.ContainerStart(ctx, resp.ID, startupOptions)
@@ -99,7 +102,7 @@ func (cli *dockerCLI) startContainer(ctx context.Context, containerName string) 
 
 	if containerType.State != "running" {
 		cli.ui.Problem().Msgf("container [%s] is not running, check logs by running 'docker logs %s'", containerName, containerType.ID)
-		return fmt.Errorf("failed to start container")
+		return ErrStartFailed
 	}
 
 	return nil
@@ -107,7 +110,7 @@ func (cli *dockerCLI) startContainer(ctx context.Context, containerName string) 
 
 func (cli *dockerCLI) removeContainer(ctx context.Context, containerName string) error {
 	cli.ui.Note().Msgf("removing container with name [%s]", containerName)
-	err := cli.dockerClient.ContainerRemove(ctx, containerName, types.ContainerRemoveOptions{
+	err := cli.dockerClient.ContainerRemove(ctx, containerName, container.RemoveOptions{
 		Force:         true,
 		RemoveVolumes: true,
 	})
@@ -116,7 +119,7 @@ func (cli *dockerCLI) removeContainer(ctx context.Context, containerName string)
 }
 
 func (cli *dockerCLI) getContainer(ctx context.Context, containerName string) (*types.Container, error) {
-	containerTypes, err := cli.dockerClient.ContainerList(ctx, types.ContainerListOptions{
+	containerTypes, err := cli.dockerClient.ContainerList(ctx, container.ListOptions{
 		All:     true,
 		Filters: filters.NewArgs(filters.Arg("name", containerName)),
 	})
@@ -133,7 +136,7 @@ func (cli *dockerCLI) getContainer(ctx context.Context, containerName string) (*
 
 func (cli *dockerCLI) createNetwork(ctx context.Context, name string) (string, error) {
 	networks, err := cli.dockerClient.NetworkList(ctx,
-		types.NetworkListOptions{Filters: filters.NewArgs(filters.KeyValuePair{Key: "name", Value: name})})
+		network.ListOptions{Filters: filters.NewArgs(filters.KeyValuePair{Key: "name", Value: name})})
 	if err != nil {
 		return "", errors.Wrap(err, "failed to read networks")
 	}
@@ -146,9 +149,8 @@ func (cli *dockerCLI) createNetwork(ctx context.Context, name string) (string, e
 		}
 	}
 
-	net, err := cli.dockerClient.NetworkCreate(ctx, name, types.NetworkCreate{
-		CheckDuplicate: false,
-		Driver:         "bridge",
+	net, err := cli.dockerClient.NetworkCreate(ctx, name, network.CreateOptions{
+		Driver: "bridge",
 	})
 	return net.ID, err
 }

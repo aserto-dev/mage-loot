@@ -1,6 +1,8 @@
 package fsutil
 
-import "fmt"
+import "github.com/pkg/errors"
+
+var ErrUnknownExtension = errors.New("unknown file extension")
 
 func Extract(extension, src, dest string) error {
 	switch extension {
@@ -12,6 +14,6 @@ func Extract(extension, src, dest string) error {
 	case "txz":
 		return ExtractTarXz(src, dest)
 	default:
-		return fmt.Errorf("unknown file extension: %s", extension)
+		return errors.Wrap(ErrUnknownExtension, extension)
 	}
 }
