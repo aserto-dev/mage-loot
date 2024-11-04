@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/zricethezav/gitleaks/v8/config"
 	"github.com/zricethezav/gitleaks/v8/detect"
-	"github.com/zricethezav/gitleaks/v8/git"
+	git "github.com/zricethezav/gitleaks/v8/sources"
 )
 
 // nolint Gitleaks rules
@@ -580,12 +580,16 @@ func GitleaksCheck() error {
 	if err != nil {
 		return err
 	}
-	cfg, _ := vc.Translate()
-	files, err := git.GitDiff(WorkDir(), false)
+	diffCmd, err := git.NewGitDiffCmd(WorkDir(), false)
 	if err != nil {
 		return err
 	}
-	findings := detect.FromGit(files, cfg, detect.Options{Verbose: true})
+	cfg, _ := vc.Translate()
+	detector := detect.NewDetector(cfg)
+	findings, err := detector.DetectGit(diffCmd)
+	if err != nil {
+		return err
+	}
 
 	if len(findings) != 0 {
 		UI.Problem().Msgf("leaks found: %d", len(findings))
