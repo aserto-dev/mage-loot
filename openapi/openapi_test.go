@@ -8,7 +8,7 @@ import (
 	"syscall"
 	"testing"
 
-	. "github.com/onsi/gomega"
+	"github.com/stretchr/testify/require"
 
 	"github.com/aserto-dev/mage-loot/openapi"
 	magetesting "github.com/aserto-dev/mage-loot/openapi/testing"
@@ -21,7 +21,7 @@ const (
 )
 
 func TestDefinitionOutsideCurrentDir(t *testing.T) {
-	g := NewGomegaWithT(t)
+	assert := require.New(t)
 
 	definitionPath := filepath.Join(os.TempDir(), "foo.yaml")
 	outputDir := os.TempDir()
@@ -29,34 +29,32 @@ func TestDefinitionOutsideCurrentDir(t *testing.T) {
 	generatorType := genTypeGoGinServer
 
 	err := openapi.GenerateOpenAPI(openapiTestVersion, definitionPath, packageName, outputDir, generatorType)
-
-	g.Expect(err).To(HaveOccurred())
 	expected := fmt.Sprintf("file '%s' doesn't exist", filepath.Join(outputDir, "foo.yaml"))
-	g.Expect(err.Error()).To(Equal(expected))
+	assert.ErrorContains(err, expected)
 }
 
 func TestDefinitionDoesNotExist(t *testing.T) {
-	g := NewGomegaWithT(t)
+	assert := require.New(t)
 
 	definitionFile, err := os.CreateTemp("", "mageloot-test")
-	g.Expect(err).ToNot(HaveOccurred())
+	assert.NoError(err)
 	defer func() {
 		err = os.Remove(definitionFile.Name())
-		g.Expect(err).ToNot(HaveOccurred())
+		assert.NoError(err)
 	}()
 	outputDir := os.TempDir()
 	packageName := genPackageName
 	generatorType := genTypeGoGinServer
 
 	err = openapi.GenerateOpenAPI(openapiTestVersion, definitionFile.Name(), packageName, outputDir, generatorType)
+	assert.Error(err)
 
-	g.Expect(err).To(HaveOccurred())
 	expected := fmt.Sprintf("path '%s' is outside the current directory", filepath.Join(outputDir, "mageloot-test.+?"))
-	g.Expect(err.Error()).To(MatchRegexp(expected))
+	assert.Regexp(expected, err.Error())
 }
 
 func TestDefinitionIsADir(t *testing.T) {
-	g := NewGomegaWithT(t)
+	assert := require.New(t)
 
 	definitionPath := magetesting.AssetOpenAPIOutputDir()
 	outputDir := os.TempDir()
@@ -64,13 +62,13 @@ func TestDefinitionIsADir(t *testing.T) {
 	generatorType := genTypeGoGinServer
 
 	err := openapi.GenerateOpenAPI(openapiTestVersion, definitionPath, packageName, outputDir, generatorType)
+	assert.Error(err)
 
-	g.Expect(err).To(HaveOccurred())
-	g.Expect(err.Error()).To(MatchRegexp("failed to determine if file '.+?' exists: not a file"))
+	assert.Regexp("failed to determine if file '.+?' exists: not a file", err.Error())
 }
 
 func TestOutputOutsideCurrentDir(t *testing.T) {
-	g := NewGomegaWithT(t)
+	assert := require.New(t)
 
 	definitionPath := magetesting.AssetWorkingOpenAPIYaml()
 	outputDir := os.TempDir()
@@ -79,13 +77,12 @@ func TestOutputOutsideCurrentDir(t *testing.T) {
 
 	err := openapi.GenerateOpenAPI(openapiTestVersion, definitionPath, packageName, outputDir, generatorType)
 
-	g.Expect(err).To(HaveOccurred())
 	expected := fmt.Sprintf("path '%s' is outside the current directory", strings.TrimSuffix(outputDir, "/"))
-	g.Expect(err.Error()).To(Equal(expected))
+	assert.ErrorContains(err, expected)
 }
 
 func TestOutputDoesNotExist(t *testing.T) {
-	g := NewGomegaWithT(t)
+	assert := require.New(t)
 
 	definitionPath := magetesting.AssetWorkingOpenAPIYaml()
 	outputDir := filepath.Join(os.TempDir(), "thispathshouldnotexist")
@@ -94,13 +91,12 @@ func TestOutputDoesNotExist(t *testing.T) {
 
 	err := openapi.GenerateOpenAPI(openapiTestVersion, definitionPath, packageName, outputDir, generatorType)
 
-	g.Expect(err).To(HaveOccurred())
 	expected := fmt.Sprintf("dir '%s' doesn't exist", outputDir)
-	g.Expect(err.Error()).To(Equal(expected))
+	assert.ErrorContains(err, expected)
 }
 
 func TestOutputIsAFile(t *testing.T) {
-	g := NewGomegaWithT(t)
+	assert := require.New(t)
 
 	definitionPath := magetesting.AssetWorkingOpenAPIYaml()
 	outputDir := magetesting.AssetWorkingOpenAPIYaml()
@@ -108,38 +104,37 @@ func TestOutputIsAFile(t *testing.T) {
 	generatorType := genTypeGoGinServer
 
 	err := openapi.GenerateOpenAPI(openapiTestVersion, definitionPath, packageName, outputDir, generatorType)
+	assert.Error(err)
 
-	g.Expect(err).To(HaveOccurred())
-	g.Expect(err.Error()).To(MatchRegexp("failed to determine if dir '.+?' exists: not a dir"))
+	assert.Regexp("failed to determine if dir '.+?' exists: not a dir", err.Error())
 }
 
 func TestWorkingOpenAPI(t *testing.T) {
-	g := NewGomegaWithT(t)
+	assert := require.New(t)
 
 	definitionPath := magetesting.AssetWorkingOpenAPIYaml()
 	outputDir, err := os.MkdirTemp(magetesting.AssetOpenAPIOutputDir(), "outdir")
-	g.Expect(err).ToNot(HaveOccurred())
+	assert.NoError(err)
 	defer func() {
 		err = os.RemoveAll(outputDir)
-		g.Expect(err).ToNot(HaveOccurred())
+		assert.NoError(err)
 	}()
 	packageName := genPackageName
 	generatorType := genTypeGoGinServer
 
 	err = openapi.GenerateOpenAPI(openapiTestVersion, definitionPath, packageName, outputDir, generatorType)
-
-	g.Expect(err).ToNot(HaveOccurred())
+	assert.NoError(err)
 }
 
 func TestBadOpenAPI(t *testing.T) {
-	g := NewGomegaWithT(t)
+	assert := require.New(t)
 
 	definitionPath := magetesting.AssetBadOpenAPIYaml()
 	outputDir, err := os.MkdirTemp(magetesting.AssetOpenAPIOutputDir(), "outdir")
-	g.Expect(err).ToNot(HaveOccurred())
+	assert.NoError(err)
 	defer func() {
 		err = os.RemoveAll(outputDir)
-		g.Expect(err).ToNot(HaveOccurred())
+		assert.NoError(err)
 	}()
 	packageName := genPackageName
 	generatorType := genTypeGoGinServer
@@ -152,7 +147,5 @@ func TestBadOpenAPI(t *testing.T) {
 		os.Stderr = currentErrOutput
 	}()
 	err = openapi.GenerateOpenAPI(openapiTestVersion, definitionPath, packageName, outputDir, generatorType)
-
-	g.Expect(err).To(HaveOccurred())
-	g.Expect(err.Error()).To(ContainSubstring("failed to run docker container to generate an OpenAPI go server"))
+	assert.ErrorContains(err, "failed to run docker container to generate an OpenAPI go server")
 }
