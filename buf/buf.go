@@ -19,11 +19,12 @@ type bufArgs struct {
 	args      []string
 }
 
-type tagResult struct {
-	Results []Tag `json:"results"`
+type labelResult struct {
+	NextPage string  `json:"next_page"`
+	Labels   []Label `json:"labels"`
 }
 
-type Tag struct {
+type Label struct {
 	Name        string `json:"name"`
 	Commit      string `json:"commit"`
 	CreatedTime string `json:"create_time"`
@@ -131,32 +132,32 @@ func AddPaths(paths []string) func(*bufArgs) {
 	}
 }
 
-// Gets all the tags from a buf repository.
-func GetTags(repository string) ([]Tag, error) {
+// Gets the 10 most recent labels sorted from newest to oldest.
+func GetTags(repository string) ([]Label, error) {
 	bufDep := deps.GoDepOutput("buf")
-	out, err := bufDep("beta", "registry", "tag", "list", repository, "--format", "json", "--reverse")
+	out, err := bufDep("registry", "label", "list", repository, "--format", "json")
 	if err != nil {
 		ui.Problem().Msg(fmt.Sprintf("Error retrieving tags for %s. Message: %s, Error: %s", repository, out, err.Error()))
 		return nil, err
 	}
-	result := tagResult{}
+	result := labelResult{}
 	err = json.Unmarshal([]byte(out), &result)
 	if err != nil {
 		return nil, errors.Wrapf(err, "invalid get tags response, probably no tags pushed")
 	}
 
-	return result.Results, nil
+	return result.Labels, nil
 }
 
 // Gets the latest commit based on create_date.
-func GetLatestTag(repository string) (Tag, error) {
+func GetLatestTag(repository string) (Label, error) {
 	tags, err := GetTags(repository)
 	if err != nil {
-		return Tag{}, err
+		return Label{}, err
 	}
 
 	if len(tags) == 0 {
-		return Tag{}, errors.Wrap(ErrNoTags, repository)
+		return Label{}, errors.Wrap(ErrNoTags, repository)
 	}
 
 	latestTag := tags[0]
@@ -164,11 +165,11 @@ func GetLatestTag(repository string) (Tag, error) {
 
 		latestTime, err := time.Parse(time.RFC3339, latestTag.CreatedTime)
 		if err != nil {
-			return Tag{}, err
+			return Label{}, err
 		}
 		tagTime, err := time.Parse(time.RFC3339, tag.CreatedTime)
 		if err != nil {
-			return Tag{}, err
+			return Label{}, err
 		}
 		if latestTime.Before(tagTime) {
 			latestTag = tag
