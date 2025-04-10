@@ -87,7 +87,7 @@ func getLoginFile() (string, error) {
 
 	fmt.Println("Using vault to get buf credentials")
 
-	err := os.MkdirAll(deps.ExtTmpDir(), 0700)
+	err := os.MkdirAll(deps.ExtTmpDir(), 0o700)
 	if err != nil {
 		return "", errors.Wrapf(err, "failed to create tmp dir")
 	}
@@ -97,7 +97,7 @@ func getLoginFile() (string, error) {
 		return "", err
 	}
 
-	err = file.Chmod(0700)
+	err = file.Chmod(0o700)
 	if err != nil {
 		return "", err
 	}
@@ -135,7 +135,7 @@ func AddPaths(paths []string) func(*bufArgs) {
 // Gets the 10 most recent labels sorted from newest to oldest.
 func GetTags(repository string) ([]Label, error) {
 	bufDep := deps.GoDepOutput("buf")
-	out, err := bufDep("registry", "label", "list", repository, "--format", "json")
+	out, err := bufDep("registry", "module", "label", "list", repository, "--format", "json")
 	if err != nil {
 		ui.Problem().Msg(fmt.Sprintf("Error retrieving tags for %s. Message: %s, Error: %s", repository, out, err.Error()))
 		return nil, err
