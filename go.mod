@@ -5,7 +5,7 @@ go 1.22.0
 toolchain go1.23.2
 
 require (
-	dario.cat/mergo v1.0.1
+	dario.cat/mergo v1.0.2
 	github.com/OneOfOne/xxhash v1.2.8
 	github.com/allegro/bigcache/v3 v3.1.0
 	github.com/aserto-dev/clui v0.8.3
